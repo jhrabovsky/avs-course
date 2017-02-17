@@ -7,7 +7,7 @@ Algoritmy v sieťach (AvS) je predmet, ktorý sa venuje programovaniu sieťovej 
 1. Úvod do oblasti soketov v Linuxe.
   - Úvodný popis predmetu, jeho priebeh a uvedenie tém, ktorým sa predmet venuje.
   - Program: posielanie rámcov s vlastným obsahom do celej lokálnej siete.
-2. Úvod do oblasti surových soketov (SOCK%RAW) v doméne AF_PAKET.
+2. Úvod do oblasti surových soketov (SOCK_RAW) v doméne AF_PAKET.
   - Zopakovanie štruktúry ARP správ (žiadosť, odpoveď), jej položiek a ich význam. Zopakovanie vlákien a ich pouzitia.
   - Program: generovanie, príjem a spracovanie ARP správ v lokálnej sieti.
   
