@@ -6,34 +6,34 @@ _[20-02-2017]_
 
 ### LITERATURA
 
-- [The Linux Programming Interface](http://man7.org/tlpi/)
-- [Network Algorithmics](https://www.elsevier.com/books/network-algorithmics/varghese/978-0-12-088477-3)
-- [Programming Linux Hacker Tools Uncovered](https://www.amazon.com/Programming-Linux-Hacker-Tools-Uncovered/dp/1931769613)
+- [The Linux Programming Interface](http://man7.org/tlpi/)  
+- [Network Algorithmics](https://www.elsevier.com/books/network-algorithmics/varghese/978-0-12-088477-3)  
+- [Programming Linux Hacker Tools Uncovered](https://www.amazon.com/Programming-Linux-Hacker-Tools-Uncovered/dp/1931769613)  
 
 ### MAN STRANKY 
 
-= _packet_ = AF_PACKET.
-= _socket_(7) = vseobecne info.
-= _ip_, _raw_ = AF_INET.
+= _packet_ = AF_PACKET.  
+= _socket_(7) = vseobecne info.  
+= _ip_, _raw_ = AF_INET.  
   
-= ak pripojim do kodu konkr _hlavickovy_ subor => cez `man <hdr_file>` ziskam popis suboru, tj zoznam a popis fcii a symbolov, kt tento hlavickovy subor deklaruje.
+= ak pripojim do kodu konkr _hlavickovy_ subor => cez `man <hdr_file>` ziskam popis suboru, tj zoznam a popis fcii a symbolov, kt tento hlavickovy subor deklaruje.  
 
 ## UVODNE INFO O PREDMETE
 
-= pripojenie ku lokalnej sieti specialne vytvorenej pre ucely AvS => praca len v tejto sieti => spolocne pripojenie pre celu skupinu.
-  = WIFI parametre : 
+= pripojenie ku lokalnej sieti specialne vytvorenej pre ucely AvS => praca len v tejto sieti => spolocne pripojenie pre celu skupinu.  
+  = WIFI parametre :   
     - AvS (SSID), 
     - heslo (avstestnet), 
     - WPA-personal (autentifikacia), 
     - AES (sifrovaci algoritmus).
      
-= _UVOD do predmetu_ => postup a zavislost od vedomosti v C => popisat pristup k studiu => priebeh cviceni, riesenie domacich uloh, odovzdavanie a ich hodnotenie.
-  = student bude v nepravidelnych intervaloch dostavat domace ulohy formou realizacie vlastneho programu s pozadovanymi fciami => pocet a typ uloh zavisi od fantazie vyucujuceho ako aj studentov (uprednostnovane pekne napady).
+= _UVOD do predmetu_ => postup a zavislost od vedomosti v C => popisat pristup k studiu => priebeh cviceni, riesenie domacich uloh, odovzdavanie a ich hodnotenie.  
+  = student bude v nepravidelnych intervaloch dostavat domace ulohy formou realizacie vlastneho programu s pozadovanymi fciami => pocet a typ uloh zavisi od fantazie vyucujuceho ako aj studentov (uprednostnovane pekne napady).  
 = _PRIEBEH_ => len rozsirene CV bez prednasok => teoreticke casti vysvetlene pocas cvicenia (za behu).
 
-= materialy pre predmet su umiestnene :
-  1. na [githube](https://github.com/jhrabovsky/AvS.git) (poslat email na jakub.hrabovsky@fri.uniza.sk so ziadostou o povolenie pristupu , sucasne uviest svoj ucet na github).
-  2. na skolskej stranke vyucujuceho => [TU](http://www.kis.fri.uniza.sk/~hrabovsky/AvS).
+= materialy pre predmet su umiestnene :  
+  1. na [githube](https://github.com/jhrabovsky/AvS.git) (poslat email na jakub.hrabovsky@fri.uniza.sk so ziadostou o povolenie pristupu , sucasne uviest svoj ucet na github).  
+  2. na skolskej stranke vyucujuceho => [TU](http://www.kis.fri.uniza.sk/~hrabovsky/AvS).  
 
 ## TEORETICKA CAST
 
