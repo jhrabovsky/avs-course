@@ -93,7 +93,7 @@ _[20-02-2017]_
 = konverzia (_arpa/inet.h_) : `ntohs()`, `ntohl()`, `htons()`, `htonl()` => s=short (_short_), l=long (_int_).  
 = odosielanie a prijem retazcov => identifikacia konca (cez _'\0'_). **POZOR!** na vypocet velkosti retazcov (+-1), `strlen()` nezapocitava ukoncovaci znak.  
 
-### ZAROVANIE A VYPLN
+### ZAROVNANIE A VYPLN
 
 = _struktury_ => kazdy prvok prevedeny medzi Host-byte-order a Network-byte-order samostatne (uloha programatora) => sirka datovej zbernice je ale 32/64 bitova => musime vzdy nacitat celu sirku => udaje mensie nez sirka su nasledne vybrane.  
 
