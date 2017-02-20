@@ -70,12 +70,14 @@ _[20-02-2017]_
 
 ### PRACA SO SOKETOM AF_PACKET - POSTUP
 
-========================= 
+-------------------------
+
 1. socket() = vytvorit soket.  
 2. bind() = pripojit adresu k soketu, tj prepojit soket s fyzickym rozhranim.   
 4. read(), write() = citanie (prijem) a zapis (odosielanie).  
 5. close(), shutdown() = zatvorenie soketu.  
-=========================
+
+-------------------------
 
 = pouzitie man stranok pre jednotlive prikazy.  
 = `man socket` = popis sys volania `socket()` => parametre => *protocol* pre SOCK_RAW == **ETH_TYPE** (`man 7 packet`).    
