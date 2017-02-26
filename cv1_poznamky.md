@@ -21,12 +21,12 @@ _[20-02-2017]_
 ## UVODNE INFO O PREDMETE
 
 = pripojenie ku lokalnej sieti specialne vytvorenej pre ucely AvS => praca len v tejto sieti => spolocne pripojenie pre celu skupinu.  
-  = WIFI parametre:    
+  = WIFI parametre:       
   
-    - AvS (SSID),   
-    - heslo (avstestnet),   
-    - WPA-personal (autentifikacia),   
-    - AES (sifrovaci algoritmus).  
+  - AvS (SSID),   
+  - heslo (avstestnet),   
+  - WPA-personal (autentifikacia),   
+  - AES (sifrovaci algoritmus).  
      
 = _UVOD do predmetu_ => postup a zavislost od vedomosti v C => popisat pristup k studiu => priebeh cviceni, riesenie domacich uloh, odovzdavanie a ich hodnotenie.  
   = student bude v nepravidelnych intervaloch dostavat domace ulohy formou realizacie vlastneho programu s pozadovanymi fciami => pocet a typ uloh zavisi od fantazie vyucujuceho ako aj studentov (uprednostnovane pekne napady).  
