@@ -21,7 +21,8 @@ _[20-02-2017]_
 ## UVODNE INFO O PREDMETE
 
 = pripojenie ku lokalnej sieti specialne vytvorenej pre ucely AvS => praca len v tejto sieti => spolocne pripojenie pre celu skupinu.  
-  = WIFI parametre :   
+  = WIFI parametre:    
+  
     - AvS (SSID),   
     - heslo (avstestnet),   
     - WPA-personal (autentifikacia),   
