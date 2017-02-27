@@ -4,7 +4,7 @@ _[24-02-2017]_
 
 ## TEORETICKA CAST - ARP
 
-= popis struktury ARP hlavicky : [FORMAT ARP spravy](arp_format.png) a [VYZNAM jedn poli](arp_hdr_fields.jpg) => _RFC 826_ pre ARP (syntax, semantika a stavovy automat pre fungovanie ARP).  
+= popis struktury ARP hlavicky : [FORMAT ARP spravy](./arp_format.png) a [VYZNAM jedn poli](./arp_hdr_fields.jpg) => _RFC 826_ pre ARP (syntax, semantika a stavovy automat pre fungovanie ARP).  
 = ARP => _CO_, _KEDY_, _AKO_ a _PRECO_?  
 = teoreticky rozbor jednotlivych poli v hlavicke ARP => ich vyznam a mozne pouzitie pre implementaciu nastroja _arping_, ktory odosiela ARP ziadosti pre konkretnu IP a prijima (spracuje) prislusne odpovede.
     
