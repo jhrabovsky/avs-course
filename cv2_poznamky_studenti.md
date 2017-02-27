@@ -12,9 +12,9 @@ _[24-02-2017]_
 
 ## PRAKTICKA CAST - PROGRAM
 
-**[!]** = pouzitie `char Payload[0]` => riesi problem: (A) _smernik_ vs (B) _data_ s **0-velkostou** => ukazuje na _adresu konca struktury_, tj na nasledujucu hlavicku v sprave.   
-  = _(A)_ => zabera 4B, tj je navyse v danej strukture z pohladu prvkov hlavicky (~ vypln).  
-  = _(B)_ => ~ (A), ale nezabera nic, len pomocny _zapis adresy na prvy bajt za strukturov_.  
+**[!]** = pouzitie `char Payload[0]` => riesi problem pristupu k dalsej hlavicke:
+  - _(A)_ **smernik** => zabera 4B, tj je navyse v danej strukture z pohladu prvkov hlavicky (~ vypln).  
+  - _(B)_ pole s **0-velkostou** => ~ (A), ukazuje na _adresu konca struktury_, tj na nasledujucu hlavicku v sprave, ale nezabera nic, len pomocny _zapis adresy na prvy bajt za strukturov_.  
 
 = _Q:_ Naco su v ARP hlavicke ziadosti uvedene SRC_MAC a SRC_IP?  
   => _A:_ Odstranenie spatneho ARP procesu (v opacnom smere), kedze pri generovani odpovede potrebuje povodny ciel MAC adresu povodneho zdroja => **[!]** _obojsmerne_ zistenie MAC adries bez nutnosti vykonania ARP procesu pre spatny smer.  
@@ -38,8 +38,8 @@ _[24-02-2017]_
   - _(B)_ text (bodkovy zapis - 4 dekadicke cisla z 0-255 oddelene bodkou).
 
 = prevod medzi zapismi cez:   
-  - `inet_ntoa()` a `inet_aton()` [**ZASTARALE**] (pouzite v programe na tomto cviceni).  
-  - `inet_ntop()` a `inet_pton()` [**NOVE**] => podporuju IPv4 aj IPv6 adresy (bude vyskusane v programe na dalsich cviceniach).  
+  - `inet_ntoa()` a `inet_aton()` => **ZASTARALE**, podporuje len IPv4 (pouzite v programe na tomto cviceni).  
+  - `inet_ntop()` a `inet_pton()` => **NOVE**, podporuju IPv4 aj IPv6 adresy (bude vyskusane v programe na dalsich cviceniach).  
 
 = _kontrola spravnosti_ zadanej vstupnej IP adresy => overit oktetovy zapis (spoliehat sa na navratovu hodnotu vyssie uvedenych fcii) => pouzit prevody medzi ciselnym a textovym formatom.  
 
@@ -82,9 +82,6 @@ _[24-02-2017]_
 ## ROZSIRENE ULOHY
 
 = **ULOHA 1** => oskenovat cez arping celu lokalnu siet => objavit aktivne sietove zariadenia v lokalnej sieti.  
-
-### VLAN TAGGING
-
 = **ULOHA 2** => pridat _VLAN_ podporu => pridanie znacky (tagu) za SRC_MAC a pred Ethertype v ETH hlavicke.  
   - **VLAN_TAG** == _TAG_TYPE_ (0x8100 == 802.1Q, 16b), _PRI_ (3b), _DEI_(== CFI, 1b), _VLAN_ID_ (000 - FFF, 12b).  
   - pridanie _VLAN tagu_ do Ethernetovej hlavicky pred ethertype => TAG_TYPE = 802.1Q (_0x8100_).  
