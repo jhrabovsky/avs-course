@@ -43,7 +43,7 @@ _[18-03-2017]_
 - knižnica nemá manuálové stránky priamo pre každú z fcií => zoznam fcií získam cez `man libnet-functions.h`.
 
 - Postup pre vytvorenie a odoslanie vlastného rámca:
-    1. deklarujem smerník na štruktúru `struct libnet_t`, ktorá reprezentuje kontext pre LIBNET (mnou vytvorený rámec).
+    1. deklarujem smerník na typ `libnet_t`, ktorý reprezentuje kontext pre LIBNET (mnou vytvorený rámec).
     2. inicializujem kontext => `libnet_init()` => uvediem typ rámca (`LIBNET_LINK`, `LIBNET_RAW4` a iné), ktorý idem vyskladať a názov rozhrania, cez ktoré plánujem rámec odoslať (NULL = rozhranie je zvolené systémom).
     3. deklarujem TAGY, do ktorých uložím hlavičky rámca => `libnet_ptag_t`.
     4. nastavím obsah hlavičiek => každý protokol má vlastný formát hlavičky, preto existuje pre každý protokol samostatná fcia pre vytvorenie a nastavenie jeho hlavičky => `libnet_build_<protokol>()`, `libnet_autobuild_<protokol>()`. Druhý typ fcií nastaví viaceré polia hlavičky na predvolené hodnoty. __[!]__ Hlavičky nastavujem vždy v poradí: L7 -> L2.
