@@ -1,6 +1,6 @@
 _[24-03-2017]_
 
-# CV6 - ARP
+# CV6 - UDP
 
 ## ZDROJE
 
@@ -99,6 +99,6 @@ _[24-03-2017]_
 - __ÚLOHA2__ = vytvorím program pre UDP server, ktorý prijíma prichádzajúce správy na porte 1234.
     + prijaté správy a ich odosielateľa vypisujem na stdout v tvare _"[IP odosielateľa]:[PORT odosielateľa] - [SPRÁVA]"_.    
 
-- __ÚLOHA3__ = vytvorím program, ktorý prijíma správy z multicastovej IP adresy 224.0.0.9 (_RIP_) => spracujem a vypíšem položky na stdout.  
+- __ÚLOHA3__ = vytvorím program, ktorý prijíma správy z multicastovej IP adresy 224.0.0.9 (_RIPv2_) => spracujem a vypíšem položky na stdout.  
     + definujem hlavičku RIP správy.
     + __[!]__ všetky _viacbajtové_ hodnoty sú v _NetworkByteOrder_ => pred vypísaním prevediem na _HostByteOrder_.
