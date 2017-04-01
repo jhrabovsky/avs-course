@@ -7,7 +7,7 @@ _[30-03-2017]_
 - hlavnou témou je [RIPv2](http://learningnetworkingblog.blogspot.sk/2014/05/routing-information-protocol-rip.html) => analyzujem štruktúru správy (veľkosť a typ jej položiek).
 - RIPv2 správy sú posielané vždy na multicastovú IP adresu `224.0.0.9` a `UDP/520` => použijem IGMP, aby som sa prihlásil na odber správ smerovaných do tejto skupiny.
 
-![Štruktúra RIPv2 správy (Zdroj: http://learningnetworkingblog.blogspot.sk/2014/05/routing-information-protocol-rip.html)](./ripv2-message.png)
+![Štruktúra RIPv2 správy (Zdroj: http://learningnetworkingblog.blogspot.sk/2014/05/routing-information-protocol-rip.html)](./ripv2-message.PNG)
 
 ## PROGRAM
 
