@@ -4,15 +4,14 @@ _[30-03-2017]_
 
 ## TEÓRIA
 
-- hlavnou témou je [RIPv2](http://learningnetworkingblog.blogspot.sk/2014/05/routing-information-protocol-rip.html) => analyzujem štruktúru správy (veľkosť a typ jej položiek).
+- hlavnou témou je [RIPv2](http://learningnetworkingblog.blogspot.sk/2014/05/routing-information-protocol-rip.html) [(RFC 2453)](https://tools.ietf.org/html/rfc2453) => analyzujem štruktúru správy (veľkosť a typ jej položiek).
 - RIPv2 správy sú posielané vždy na multicastovú IP adresu `224.0.0.9` a `UDP/520` => použijem IGMP, aby som sa prihlásil na odber správ smerovaných do tejto skupiny.
 
-![Štruktúra RIPv2 správy (Zdroj: http://learningnetworkingblog.blogspot.sk/2014/05/routing-information-protocol-rip.html)](./ripv2-message.PNG)
+![Štruktúra RIPv2 správy](./ripv2-message.jpg)
 
 ## PROGRAM
 
-- témou cvičenia je __RIPv2__ => vytvorím program pre príjem správ protokolu RIPv2 a spracujem ich obsah (vypíšem na obrazovku kľúčové informácie v prehľadnom formáte).
-
+- vytvorím program pre príjem správ protokolu __RIPv2__ a spracujem ich obsah (vypíšem na obrazovku kľúčové informácie v prehľadnom formáte).
 - okrem údajov, któré obsahuje RIP správa vypíšem aj ďalšie informácie, napr. _IP_ adresu odosielateľa RIP správy.
 - pre IP adresy v štruktúre použijem priamo typ `struct in_addr` => lepšia manipulácia bez zmeny veľkosti položky.
 - **[!]** vždy uvediem `__attribute__((packed))` pre štruktúry, ktoré predstavujú hlavičky správ posielaných cez sieť.
@@ -27,7 +26,7 @@ _[30-03-2017]_
 
 - __[!]__ `inet_ntoa()` používa __statickú__ premennú => každé volanie premaže výsledok z predchádzajúceho volania => ak potrebujem viackrát za sebou zavolať funkciu, výsledky si musím zakaždým prekopírovať do vlastnej pamäte (premennej).
     + odporúčam používať fciu `inet_ntop()`. 
-- __[!]__ vo výpise `printf()` použijem pre hodnoty typu _unsigned_ formát _%u_ (pre int) a _%hu_ (pre short).
+- __[!]__ vo výpise `printf()` použijem pre hodnoty typu _unsigned_ formát `%u` (pre int) a `%hu` (pre short).
 
 ### POZNÁMKY
 
@@ -39,9 +38,7 @@ _[30-03-2017]_
 - __ÚLOHA1__ = rozšírte program o nové vlákno, ktoré odosiela RIP správy s vlastným obsahom => ohlasujte siete s prefixami _10.XX.AA.0/24_, kde _XX_ je najnižší bajt vašej IP addresy a _AA_ je z (0..255) => odosielajte správy na broadcast (RIPv1) alebo na multicast adresu (RIPv2).
     + __[!]__ pri tvorbe záznamov RIP správy použite pre všetky viacbajtové položky _network byte order_.
     + zvoľte vhodný postup generovania prefixov:
-        
         1. vytvorím prvú (štartovaciu) sieť klasickým spôsobom => preložím text na číslo.
         2. ďalšie prefixy tvorím tak, že pripočítavám k číslu z bodu 1 vhodný krok (__[!]__ krok musím zakaždým prehodiť do _network byte order_ cez `htonl()` pred pripočítaním).
-    
-    + __[!]__ max počet prefixov v 1 RIP správe je __25__ => pre generovanie veľa prefixov (>25) musím rozdeliť záznamy do viacerých správ => upravím program tak, aby generoval správy podľa počtu záznamov, ktoré chcem odoslať (__max 25 záznamov per spravu__) => poslednú správu (<25 záznamov) odošlem samostatne.
-    + generujem RIP správy pravidelne každých _N_ sekúnd.
+    + __[!]__ max počet prefixov v 1 RIP správe je __25__ => pre generovanie veľa prefixov (>25) musím rozdeliť záznamy do viacerých správ => upravím program tak, aby generoval správy podľa počtu záznamov, ktoré chcem odoslať (__max 25 záznamov per správu__) => poslednú správu (<25 záznamov) odošlem samostatne.
+    + generujte RIP správy pravidelne každých _N_ sekúnd.
