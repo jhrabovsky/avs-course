@@ -88,6 +88,9 @@ _[17-02-2018]_
 
 ## PRAKTICKÁ ČASŤ - PROGRAM
 
+- pre praktickú časť vyučovania je predpripravený súbor virtuálneho zariadenia (`AVS-64-IDE.ova`), ktorý obsahuje prostredie s nástrojmi požadovanými pre výučbu.
+    * súbor poskytne vyučujúci na cvičení.
+    * po importovaní preinštalujte (aktualizujte) `Guest Additions` na verziu kompatibilnú s Vašou verziou nástroja VirtualBox. 
 - nastavenie dialektu pre _ECLIPSE_ => `--std=gnu99` (Project -> Properties -> C/C++ Build -> Settings -> Dialect).  
 - pre zdieľanie adresára medzi VM a natívnym systémom musím pridať používateľa vo VM (_student_) do skupiny `vboxsf` cez `usermod -a -G vboxsf student`.  
 
