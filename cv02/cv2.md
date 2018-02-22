@@ -50,7 +50,7 @@ _[22-02-2018]_
 
 - prevod medzi formátmi vykonám cez:
     + `inet_ntoa()` a `inet_aton()` => __ZASTARALÉ__, podporuje len IPv4 (použijem v programe na tomto cvičení).
-    + `inet_ntop()` a `inet_pton()` => __NOVÉ__, podporuju IPv4 aj IPv6 adresy (použijem na ďalších cvičeniach).
+    + `inet_ntop()` a `inet_pton()` => __NOVÉ__, podporujú IPv4 aj IPv6 adresy (použijem na ďalších cvičeniach).
 
 - overím správnosť zadanej vstupnej IP adresy => overím oktetový zápis, pričom sa spolieham na návratovú hodnotu vyššie uvedených funkcií => použijem prevody medzi číselným a textovým formátom podľa účelu:
     + číselný formát je vhodný pre systém - dáta v pamäti.
@@ -75,8 +75,8 @@ _[22-02-2018]_
 
 ## VLÁKNA
 
-- pridám `#include <pthread.h>`, aby som získal prístup k funkciám pre správu vlákien.
-    + `man pthread_create` = popisuje vytvorenie a spustenie vlákna. Typ štartovacej funkcie sa musí zhodovať s typom, ktorý je uvedený v manuáli (funkčný prototyp pre `pthread_create()`) => `void * <nazov>(void * args);`.
+- pridám `#include <pthread.h>`, aby som získal prístup k funkciam pre správu vlákien.
+    + `man pthread_create` = popisuje vytvorenie a spustenie vlákna. Typ štartovacej funkcie sa musí zhodovať s typom, ktorý je uvedený v manuáli (funkčný prototyp pre `pthread_create()`) => `void * <názov-funkcie>(void * args);`.
 
 - _oddelím_ generovanie ARP žiadosti od spracovania prijatých ARP odpovedí => použijem vlákna / procesy => _main()_ je hlavné vlákno, ktoré je zodpovedné za vytvorenie ďalších vlákien.
     + _main()_ = vykonáva odosielanie ARP žiadostí s oneskorením (`sleep(1)` pre 1 sekundu) v slučke => ochrana pred zahltením fyzického rozhrania.
