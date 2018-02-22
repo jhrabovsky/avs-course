@@ -11,6 +11,10 @@ _[22-02-2018]_
 
 - pre prácu so správami ARP je nevyhnutná znalosť a popis štruktúry ARP hlavičky: [FORMÁT ARP správy](./arp_format.png) a [VÝZNAM jednotlivých polí](./arp-hdr-fields.jpg) => detailný popis pre ARP je v _RFC 826_ (syntax, sémantika a stavový automat pre fungovanie ARP).
 
+![Formát ARP správy](./arp_format.png)
+
+![Význam polí ARP správy](./arp-hdr-fields.jpg)
+
 - teoretický rozbor jednotlivých polí v hlavičke ARP => ich význam a možné použitie pre implementáciu nástroja `arping`, ktorý odosiela ARP žiadosti ohľadom konkrétnej IP adresy a prijíma (spracuje) príslušné odpovede.
 
 - [!] konkrétny príklad deklarácie štruktúry pre ARP a rôznych podporných makier je uvedený v `net/if_arp.h` (prípadne v `linux/if_arp.h`) a `netinet/if_ether.h`.
