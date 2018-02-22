@@ -22,7 +22,7 @@ _[22-02-2018]_
 ## PRAKTICKÁ ČASŤ - PROGRAM
 
 - [!] pre jednoduchý prístup k dátam, ktoré sú umiestnené za hlavičkou, použijem `char Payload[0]` ako __posledný__ prvok štruktúry danej hlavičky => rieši problém prístupu k ďalšej hlavičke vo vnútri PDU (Protocol Data Unit):
-    + (A) __smerník__ = zaberá 4 bajty, ktoré sú navyše v danej štruktúre z pohľadu hlavičky, ktorú štruktúra reprezentuje (~ výplň) => nevhodný pre odosielanie po sieti.
+    + (A) __smerník__ = zaberá 4 bajty. Tie sú navyše v danej štruktúre z pohľadu hlavičky, ktorú štruktúra reprezentuje (~ výplň) => nevhodný pre odosielanie po sieti.
     + (B) __pole s 0-veľkosťou__ = ukazuje na _adresu konca štruktúry_, teda na nasledujúcu hlavičku v správe. Tento prvok ale nezaberá žiadnu pamäť navyše (v porovnaní so smerníkom). Ide len o pomocný _zápis adresy na prvý bajt za štruktúrov_.
 
 - Q: NAČO sú v ARP hlavičke žiadosti uvedené aj polia: `SRC_MAC` a `SRC_IP`?
@@ -32,7 +32,7 @@ _[22-02-2018]_
 - spôsoby vypísania chybovej správy na terminál:
     + ak funkcia zapíše chybový kód do premennej `errno`, použijem `perror()`.
     + inak použijem `fprintf(stderr,...)`, textová správa je odoslaná na chybový výstup `STDERR`.
-- [!] pri alokácii dynamickej pamäte cez `malloc()` (napr. generovanie ARP žiadosti) nezabudnem na _uvoľnenie pozičanej pamäte_ cez `free()` => správne upratovanie v programe môžem overiť cez nástroj `mtrace`.
+- [!] pri alokácii dynamickej pamäte cez `malloc()` (napr. generovanie ARP žiadosti) nezabudnem na _uvoľnenie požičanej pamäte_ cez `free()` => správne upratovanie v programe môžem overiť cez nástroj `mtrace`.
 - [!] vždy _inicializujem_ premennú => zabezpečenie _ZNÁMEJ_ mnou zvolenej počiatočnej hodnoty.
 
 - načítanie MAC adresy z reťazca (vhodné v prípade čítania z terminálu - `STDIN`):
