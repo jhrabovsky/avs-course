@@ -1,97 +1,105 @@
-_[24-02-2017]_
+_[22-02-2018]_
 
-# CVICENIE 2 - ARP
+# CV2 - AVS
 
-## TEORETICKA CAST - ARP
+## TEORETICKÁ ČASŤ - ARP
 
-- popis struktury ARP hlavicky : [FORMAT ARP spravy](./arp_format.png) a [VYZNAM jedn poli](./arp-hdr-fields.jpg) => _RFC 826_ pre ARP (syntax, semantika a stavovy automat pre fungovanie ARP).
-- ARP => _CO_, _KEDY_, _AKO_ a _PRECO_?
-- teoreticky rozbor jednotlivych poli v hlavicke ARP => ich vyznam a mozne pouzitie pre implementaciu nastroja _arping_, ktory odosiela ARP ziadosti pre konkretnu IP a prijima (spracuje) prislusne odpovede.
+- ARP:
+    + _ČO_ to je?
+    + _KEDY_ a _PREČO_ sa používa?
+    + _AKO_ funguje?
 
-- **[!]** deklaracie pre ARP v `net/if_arp.h` (prip. `linux/if_arp.h`) a `netinet/if_ether.h`, napr ARP hlavicka.
+- pre prácu so správami ARP je nevyhnutná znalosť a popis štruktúry ARP hlavičky: [FORMÁT ARP správy](./arp_format.png) a [VÝZNAM jednotlivých polí](./arp-hdr-fields.jpg) => detailný popis pre ARP je v _RFC 826_ (syntax, sémantika a stavový automat pre fungovanie ARP).
 
-## PRAKTICKA CAST - PROGRAM
+- teoretický rozbor jednotlivých polí v hlavičke ARP => ich význam a možné použitie pre implementáciu nástroja `arping`, ktorý odosiela ARP žiadosti ohľadom konkrétnej IP adresy a prijíma (spracuje) príslušné odpovede.
 
-- **[!]** pouzitie `char Payload[0]` => riesi problem pristupu k dalsej hlavicke:
-    - _(A)_ **smernik** => zabera 4B, tj je navyse v danej strukture z pohladu prvkov hlavicky (~ vypln).
-    - _(B)_ pole s **0-velkostou** => ~ (A), ukazuje na _adresu konca struktury_, tj na nasledujucu hlavicku v sprave, ale nezabera nic, len pomocny _zapis adresy na prvy bajt za strukturov_.
+- [!] konkrétny príklad deklarácie štruktúry pre ARP a rôznych podporných makier je uvedený v `net/if_arp.h` (prípadne v `linux/if_arp.h`) a `netinet/if_ether.h`.
 
-- _Q:_ Naco su v ARP hlavicke ziadosti uvedene SRC_MAC a SRC_IP?
-    - _A:_ Odstranenie spatneho ARP procesu (v opacnom smere), kedze pri generovani odpovede potrebuje povodny ciel MAC adresu povodneho zdroja => **[!]** _obojsmerne_ zistenie MAC adries bez nutnosti vykonania ARP procesu pre spatny smer.
+## PRAKTICKÁ ČASŤ - PROGRAM
 
-- **[!]** kontrolovat min velkost ramca => min _60B_ pre Ethernet => system automaticky doplni FCS (CRC).
-- `fprintf(stderr,...)` => chybovy vystup na __STDERR__.
-- pouzitie dynamickej pamate `malloc()` pre odosielanu ARP ziadost => nezabudnut na _uvolnenie pozicanej pamate_.
-- **[!]** vzdy _inicializovat_ vsetky premenne => zabezpecenie _ZNAMEJ_ nami urcenej pociatocnej hodnoty.  
+- [!] pre jednoduchý prístup k dátam, ktoré sú umiestnené za hlavičkou, použijem `char Payload[0]` ako __posledný__ prvok štruktúry danej hlavičky => rieši problém prístupu k ďalšej hlavičke vo vnútri PDU (Protocol Data Unit):
+    + (A) __smerník__ = zaberá 4 bajty, ktoré sú navyše v danej štruktúre z pohľadu hlavičky, ktorú štruktúra reprezentuje (~ výplň) => nevhodný pre odosielanie po sieti.
+    + (B) __pole s 0-veľkosťou__ = ukazuje na _adresu konca štruktúry_, teda na nasledujúcu hlavičku v správe. Tento prvok ale nezaberá žiadnu pamäť navyše (v porovnaní so smerníkom). Ide len o pomocný _zápis adresy na prvý bajt za štruktúrov_.
 
-- nacitanie MAC adresy z retazca => `sscanf()` => spec format textu, v ktorom je zapisana MAC adresa a hodnoty vlozit do jednotlivych poli MAC adresy v pamati => vhodne pre vyber poloziek z retazca => mozne pouzitie aj pre IP adresu.
-- pre jednotlive polozky MAC adresy => pouzitie _smernikovej aritmetiky_ => `*(srcMAC + i)` = adresa i-teho bajtu adresy (pocitame od 0) == `srcMAC[i]`.
+- Q: NAČO sú v ARP hlavičke žiadosti uvedené aj polia: `SRC_MAC` a `SRC_IP`?
+    + A: Hodnoty týchto položiek si uloží prijímajúce zariadenie do svojej ARP tabuľky => odstránenie spätného ARP procesu (v opačnom smere), keďže pri generovaní odpovede potrebuje pôvodný cieľ MAC adresu pôvodného zdroja => [!] _obojsmerné_ zistenie MAC adries bez nutnosti vykonania ARP procesu pre spätný smer.
 
-- _Q:_ ARP pre ine logicke/fyzicke adresy nez Ethernet a IP?
-    - _A:_ Uprava struktury a pouzitie len fiktivnej adresy na prvu z tychto adries v ARP hlavicke => napr ako pre RARP vo FrameRelay.
+- [!] vždy skontrolujem minimálnu veľkosť rámca => minimum je _60B_ pre Ethernet => systém automaticky doplní FCS pole (Frame Check Sequence -> CRC).
+- spôsoby vypísania chybovej správy na terminál:
+    + ak funkcia zapíše chybový kód do premennej `errno`, použijem `perror()`.
+    + inak použijem `fprintf(stderr,...)`, textová správa je odoslaná na chybový výstup `STDERR`.
+- [!] pri alokácii dynamickej pamäte cez `malloc()` (napr. generovanie ARP žiadosti) nezabudnem na _uvoľnenie pozičanej pamäte_ cez `free()` => správne upratovanie v programe môžem overiť cez nástroj `mtrace`.
+- [!] vždy _inicializujem_ premennú => zabezpečenie _ZNÁMEJ_ mnou zvolenej počiatočnej hodnoty.
 
-### PREVOD IP ADRESY: TEXT<->CISLO
+- načítanie MAC adresy z reťazca (vhodné v prípade čítania z terminálu - `STDIN`):
+    + použijem funkciu `sscanf()`, kde uvediem špecifický žiadaný formát textu, v ktorom zapíšem MAC adresu (napr. v termináli).
+    + požadované hodnoty z formátovaného textu vložím do jednotlivých položiek MAC adresy v pamäti.
+    + tento prístup je vhodný pre všeobecný výber položiek z reťazca, teda napr. aj pre pre IP adresu.
 
-- IP adresa hosta ma dve formy:
-    - _(A)_ 32-bitove binarne cislo (network-byte-order),
-    - _(B)_ text (bodkovy zapis - 4 dekadicke cisla z 0-255 oddelene bodkou).
+- pre jednotlive položky MAC adresy využijem _smerníkovú aritmetiku_ => `*(srcMAC + i)` = adresa i-teho bajtu adresy (počítam od 0). Zápis je zhodný s `srcMAC[i]`.
 
-- prevod medzi zapismi cez:   
-    - `inet_ntoa()` a `inet_aton()` => **ZASTARALE**, podporuje len IPv4 (pouzite v programe na tomto cviceni).  
-    - `inet_ntop()` a `inet_pton()` => **NOVE**, podporuju IPv4 aj IPv6 adresy (bude vyskusane v programe na dalsich cviceniach).
+### PREVOD IP ADRESY: TEXT<->ČÍSLO
 
-- _kontrola spravnosti_ zadanej vstupnej IP adresy => overit oktetovy zapis (spoliehat sa na navratovu hodnotu vyssie uvedenych fcii) => pouzit prevody medzi ciselnym a textovym formatom.
+- IP adresa má dve formáty zápisu:
+    + (A) 32-bitové binárne číslo (network-byte-order).
+    + (B) text (bodkový zápis, ktorý používa 4 dekadické čísla z 0-255 oddelené bodkou).
 
-- _zachytenie odpovede_ na nasu ARP ziadost => sledovat prijate spravy a filtrovat/hladat _ocakavane/pozadovane_ polozky (v ARP hlavicke).
-    - citanie prijatych sprav => urcit velkost dolezitych dat a len tieto udaje precitat => alokacia pamate + cakanie na spravu (nekonecny cyklus).
+- prevod medzi formátmi vykonám cez:
+    + `inet_ntoa()` a `inet_aton()` => __ZASTARALÉ__, podporuje len IPv4 (použijem v programe na tomto cvičení).
+    + `inet_ntop()` a `inet_pton()` => __NOVÉ__, podporuju IPv4 aj IPv6 adresy (použijem na ďalších cvičeniach).
 
-- vytvorenie pomocnej premennej na arp hlavicku v prijatom ramci => postupne porovnanie jednotlivych poloziek =>
-    1. _opcode_ (ziadost/odpoved),
-    2. _srcIP_ pre ziadost VS _targetIP_ (dstIP) pre odpoved.
+- overím správnosť zadanej vstupnej IP adresy => overím oktetový zápis, pričom sa spolieham na návratovú hodnotu vyššie uvedených funkcií => použijem prevody medzi číselným a textovým formátom podľa účelu:
+    + číselný formát je vhodný pre systém - dáta v pamäti.
+    + textový formát je vhodný pre človeka - výpis na terminál.
 
-- **[!]** `memcmp()` = porovnanie hodnot priamo v pamatiach => vhodne pre IP adresy (vzdy pevny pocet bitov). 
-- pre vypis pozitivnej odpovede pouzit `printf()` s vhodnym formatovanim IP a MAC adries => **[!]** pouzitie * pri vkladani parametrov pre printf (pozaduje hodnotu).
-    - **[!]** pouzit _hh_ format => citanie len 1B namiesto 4B (plati pre _%x_) => pristup len k _1B_ pamate => ochrana pred pristupom do neznamej casti pamate mimo platny rozsah.
+-----
 
-- **[!]** pri generovani ARP ziadosti a kontrolovani ARP odpovede _SKONTROLOVAT_ spravnost zadanych parametrov:
-  - `response->OPCODE == ARP_RESP` (je ARP odpoved),
-  - `response->SRC_IP == request->TARGET_IP` (odpoved prisla zo stanice, na kt som sa pytal v mojej ARP ziadosti).
+- _zachytenie odpovede_ na ARP žiadosti, ktoré sú určené pre mňa => sledujem prijaté správy a filtrujem (hľadám) _očakávané/požadované_ položky v ARP hlavičke (MAC a IP adresy).
+    + pri spracovaní prijatých správ zvolím veľkosť dôležitých dát, ktoré musím spracovať (zvyšok ignorujem) => alokácia pamäte + čakanie na správu (nekonečný cyklus).
 
-## VLAKNA
+- pre jednoduchý prístup k hlavičke v prijatej správe vytvorím pomocnú premennú (jej typ zodpovedá štruktúre, ktorá reprezentuje ARP hlavičku v prijatom ramci) => postupne porovnávam jednotlivé položky =>
+    1. _opcode_ (žiadosť/odpoveď),
+    2. _srcIP_ pre žiadosť, _targetIP_ (dstIP) pre odpoveď.
 
-- pridanie `#include <pthread.h>` => pridanie fcii pre spravu vlakien.
-    - `man pthread_create` => vytvorenie a spustenie vlakna => pozriet typ pre startovaciu fciu vlakna.
-- _oddelenie_ generovania ARP ziadosti od sledovania prijatych ARP odpovedi => pouzit vlakna/procesy => _main_ je hlavne vlakno, kt vytvori dalsie vlakna.
-    - _main_ => odosielanie ARP ziadosti s oneskorenim (`sleep(1)` pre 1sec) v slucke => ochrana pred zahltenim siete.
-    - _vlakno_ => prijem ARP ziadosti, ich spracovanie a v pripade zhody vypis na obrazovku.
-   
-- _Q:_ Ake su rozdiely medzi vlaknom a procesom?
-    - _A:_ popisat princip vlakna a procesu => porovnat => odlisna uroven zdielania pamate.
-  
-- presunutie na _globalne premenne_ => zdielanie premennej medzi viacerymi vlaknami (napr socket).
-    - _kriticka sekcia_ => riesit pristup do premennej => semafor, mutex.
-- zvolit, kt premenne budu globalne => podla potrieb pristupu k premennym z roznych vlakien.
--**[!]** _NEPOUZIVAT_ globalny pointer na lokalnu premennu, kt je def vo vnutri fcie => neobsahuje vzdy platnu hodnotu/adresu (napr. v kode *cv2_threads_arping.c* targetIP).
+- [!] `memcmp()` = porovnám hodnoty priamo v pamäti => vhodné pre IP adresy, ktoré majú vždy pevnú šírku (počet bitov).
+- pre výpis pozitívnej odpovede použijem `printf()` s vhodným formátovaním IP a MAC adries => [!] použijem '*' pri vkladaní parametrov pre `printf()`, lebo požaduje hodnotu a nie adresu premennej.
+    + [!] použijem `hh` formát, aby som prečítal len 1B namiesto 4B (platí pre `%x`) => pristupujem tak len k _1B_ pamäte => ochrana pred prístupom do neznámej časti pamäte mimo platný rozsah, napr. posledné 2 bajty MAC adresy.
 
-- vytvorenie fcie, kt bude bezat vo vlakne => pevne definovany **funkcny prototyp** => `void * <nazov>(void * args)`.
+- [!] pri generovaní ARP žiadosti a kontrolovaní ARP odpovede overím správnosť parametrov:
+    + `response->OPCODE == ARP_RESP` (je ARP odpoveď),
+    + `response->SRC_IP == request->TARGET_IP` (odpoveď prišla zo stanice, na ktorú som sa pýtal v mojej ARP žiadosti).
 
-- **[!]** pri kompilacii pridat kniznicu pre vlakna => _libpthread_ => `-lpthread` (starsie kompilatory) alebo `-pthread` (novsie kompilatory).
-- **[ECLIPSE]** = pridat _pthread_ kniznicu => _Project -> Properties -> C/C++ General -> Paths & Symbols -> Libraries_.
+## VLÁKNA
 
-## ROZSIRENE ULOHY
+- pridám `#include <pthread.h>`, aby som získal prístup k funkciám pre správu vlákien.
+    + `man pthread_create` = popisuje vytvorenie a spustenie vlákna. Typ štartovacej funkcie sa musí zhodovať s typom, ktorý je uvedený v manuáli (funkčný prototyp pre `pthread_create()`) => `void * <nazov>(void * args);`.
 
-- **ULOHA 1** => oskenovat cez arping celu lokalnu siet => objavit aktivne sietove zariadenia v lokalnej sieti.
+- _oddelím_ generovanie ARP žiadosti od spracovania prijatých ARP odpovedí => použijem vlákna / procesy => _main()_ je hlavné vlákno, ktoré je zodpovedné za vytvorenie ďalších vlákien.
+    + _main()_ = vykonáva odosielanie ARP žiadostí s oneskorením (`sleep(1)` pre 1 sekundu) v slučke => ochrana pred zahltením fyzického rozhrania.
+    + _vlákno_ = prijíma ARP žiadosti, spracuje ich a vypíše aktuálny stav na obrazovku.
 
-- **ULOHA 2** => pridat _VLAN_ podporu => pridanie znacky (tagu) za SRC_MAC a pred Ethertype v ETH hlavicke.
-    - **VLAN_TAG** == _TAG_TYPE_ (0x8100 == 802.1Q, 16b), _PRI_ (3b), _DEI_(== CFI, 1b), _VLAN_ID_ (000 - FFF, 12b).
-    - pridanie _VLAN tagu_ do Ethernetovej hlavicky pred ethertype => TAG_TYPE = 802.1Q (_0x8100_).
-    - spec _PRI_ (3bit), _DEI_ (CFI = 1bit) a _VLAN-ID_ ako sucast jedneho 16bit cisla (2B) -> _[PRI, DEI, VLAN-ID]_. 
+- Q: AKÉ sú rozdiely medzi vláknom a procesom?
+    + A: Odlišujú sa v spôsobe a rozsahu zdieľania pamäte.
 
-- **ULOHA 3** => _STP_ = generovanie STP ramcov s vhodnym obsahom.
+- použijem _globálne premenné_ pre zdieľanie premennej medzi viacerými vláknami (napr. id soketu).
+    + _kritická sekcia_ = musím riešiť korektný prístup do zdieľanej premennej => semafor, mutex.
+    + zvolím premenné, ktoré budú globálne => vyžadujú prístup z viacerých vlákien.
+    + [!] __NEPOUŽÍVAŤ__ globálny smerník na lokálnu premennú, ktorá je definovaná vo vnútri fukcie => smerník neobsahuje vždy platnú hodnotu/adresu (napr. platí pre targetIP v `cv2_threads_arping.c`).
 
-- **ULOHA 4** => _CDP_ = ohlasovat seba cez CDP ramce (alternativou je _LLDP_).
-  
-- **ULOHA 5** => implementacia _mostu_ (SW prepinac) => tema bude spracovana na dalsich cviceniach.
-    - nastavenie _promiskuitneho rezimu_ => prijem vsetkych ramcov bez ohladu na ich cielovu MAC adr.
-    - zameranie na prepinaciu tab => ukladanie, aktualizacia a vyhladavanie => volba vhodnej udajovej struktury (linearne zretazeny zoznam s operaciami - add, del a search).
-    - testovanie implementacie cez 2 VM (Bridge a Klient1) a nativny system (Klient2) cez premostenie prepojenia.
+- [!] pri kompilácii pridám knižnicu pre podporu vlákien - `libpthread` => `-lpthread` (staršie kompilátory) alebo `-pthread` (novšie kompilátory).
+- [ECLIPSE] pridanie knižnice `pthread`  => `Project -> Properties -> C/C++ General -> Paths & Symbols -> Libraries`.
+
+## ROZŠIRUJÚCE ÚLOHY
+
+- **ÚLOHA 1** = oskenujem cez `arping` celú lokálnu sieť => objavím a vypíšem na terminál všetky aktívne sieťové zariadenia v lokálnej sieti.
+- **ÚLOHA 2** = pridám podporu pre _VLAN_ => vyžaduje pridanie značky (tagu) za `SRC_MAC` a pred `EtherType` v Ethernetovej hlavičke.
+    + `VLAN-TAG` = `TAG-TYPE` (0x8100 pre 802.1Q - 16b), `PRI` (3b), `DEI` (= CFI - 1b), `VLAN-ID` (000 až FFF - 12b).
+    + pridám `VLAN-TAG` do Ethernetovej hlavičky pred `EtherType`.
+    + použijem len jednu premennú pre `PRI`, `DEI` a `VLAN-ID`, ktoré tak budú vyjadrené ako súčasť jedného 16-bitového čísla (2B) -> [PRI, DEI, VLAN-ID].
+
+- **ÚLOHA 3** = __STP__ = generovanie STP rámcov s vhodným obsahom.
+- **ÚLOHA 4** = __CDP__ = ohlasujem seba cez vhodne generované CDP rámce (alternatívou je __LLDP__).
+- **ÚLOHA 5** = implementujem správanie _mostu_ (softvérový prepínač) => tejto téme sa budem venovať aj na ďalších cvičeniach.
+    + nastavenie _promiskuitného režimu_ => príjem všetkých rámcov bez ohľadu na ich cieľovú MAC adresu.
+    + zameranie na prepínaciu tabuľku => ukladanie, aktualizácia a vyhľadávanie => voľba vhodnej údajovej štruktúry (lineárne zreťazený zoznam s operáciami: pridaj, vymaž a vyhľadaj).
+    + testovanie implementácie cez dva virtuálne stroje (Bridge a Klient1) a natívny systém (Klient2) cez premostenie prepojenia.
