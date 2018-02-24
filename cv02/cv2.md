@@ -40,7 +40,7 @@ _[22-02-2018]_
     + požadované hodnoty z formátovaného textu vložím do jednotlivých položiek MAC adresy v pamäti.
     + tento prístup je vhodný pre všeobecný výber položiek z reťazca, teda napr. aj pre IP adresu.
 
-- pre jednotlive položky MAC adresy využijem _smerníkovú aritmetiku_ => `*(srcMAC + i)` = adresa i-teho bajtu adresy (počítam od 0). Zápis je zhodný s `srcMAC[i]`.
+- pre jednotlivé položky MAC adresy využijem _smerníkovú aritmetiku_ => `*(srcMAC + i)` = adresa i-teho bajtu zdrojovej MAC adresy (počítam od 0). Tento zápis je zhodný so zápisom: `srcMAC[i]`.
 
 ### PREVOD IP ADRESY: TEXT<->ČÍSLO
 
