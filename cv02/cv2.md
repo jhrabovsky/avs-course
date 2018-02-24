@@ -44,7 +44,7 @@ _[22-02-2018]_
 
 ### PREVOD IP ADRESY: TEXT<->ČÍSLO
 
-- IP adresa má dve formáty zápisu:
+- IP adresa má dva formáty zápisu:
     + (A) 32-bitové binárne číslo (network-byte-order).
     + (B) text (bodkový zápis, ktorý používa 4 dekadické čísla z 0-255 oddelené bodkou).
 
