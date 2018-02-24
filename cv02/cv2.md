@@ -38,7 +38,7 @@ _[22-02-2018]_
 - načítanie MAC adresy z reťazca (vhodné v prípade čítania z terminálu - `STDIN`):
     + použijem funkciu `sscanf()`, kde uvediem špecifický žiadaný formát textu, v ktorom zapíšem MAC adresu (napr. v termináli).
     + požadované hodnoty z formátovaného textu vložím do jednotlivých položiek MAC adresy v pamäti.
-    + tento prístup je vhodný pre všeobecný výber položiek z reťazca, teda napr. aj pre pre IP adresu.
+    + tento prístup je vhodný pre všeobecný výber položiek z reťazca, teda napr. aj pre IP adresu.
 
 - pre jednotlive položky MAC adresy využijem _smerníkovú aritmetiku_ => `*(srcMAC + i)` = adresa i-teho bajtu adresy (počítam od 0). Zápis je zhodný s `srcMAC[i]`.
 
