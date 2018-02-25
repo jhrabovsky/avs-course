@@ -19,33 +19,33 @@
 #define ERROR	(0)
 #define SUCCESS	(1)
 
-#define IFACE	"eth1"
+#define IFACE	"eth0"
 #define SRC_IP 	"192.168.56.10"
 #define SRC_MAC "08:00:27:bc:ef:24"
 
-#define OPCODE_REQ	(1)
-#define OPCODE_RESP 	(2)
-#define HW_LEN	(6)
-#define IP_LEN	(4)
-#define IP_PROTO	(0x800)
-#define HW_TYPE	(1)
+#define OPCODE_REQ  (1)
+#define OPCODE_RESP (2)
+#define HW_LEN      (6)
+#define IP_LEN      (4)
+#define IP_PROTO    (0x800)
+#define HW_TYPE     (1)
 
 struct ethHdr{
-	uint8_t dstMAC[6];
-	uint8_t srcMAC[6];
+	uint8_t  dstMAC[6];
+	uint8_t  srcMAC[6];
 	uint16_t ethertype;
-	uint8_t payload[0]; // len formalne s 0-velkostou
+	uint8_t  payload[0]; // len formalne s 0-velkostou
 } __attribute__ ((packed));
 
 struct arpHdr{
 	uint16_t hwType;
 	uint16_t protoType;
-	uint8_t hwLen;
-	uint8_t protoLen;
+	uint8_t  hwLen;
+	uint8_t  protoLen;
 	uint16_t opcode;
-	uint8_t srcMAC[6];
+	uint8_t  srcMAC[6];
 	uint32_t srcIP;
-	uint8_t targetMAC[6];
+	uint8_t  targetMAC[6];
 	uint32_t targetIP;
 } __attribute__ ((packed));
 
@@ -150,7 +150,7 @@ int arpRequestAndResponse(char * dstIP){
 	
 	sscanf(SRC_MAC,"%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &eth->srcMAC[0], &eth->srcMAC[1], &eth->srcMAC[2], &eth->srcMAC[3], &eth->srcMAC[4], &eth->srcMAC[5]);
 	
-	eth->ethertype = htons(0x806);
+	eth->ethertype = htons(ETHERTYPE_ARP);
 	
 	arp = (struct arpHdr *) eth->payload;
 	arp->hwType = htons(HW_TYPE);

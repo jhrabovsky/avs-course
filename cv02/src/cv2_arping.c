@@ -17,33 +17,34 @@
 #define ERROR	(0)
 #define SUCCESS	(1)
 
-#define IFACE	"eth1"
+#define IFACE	"eth0"
 #define SRC_IP 	"192.168.56.10" // SEM vlozit lokalnu IP adresu
 #define SRC_MAC "08:00:27:bc:ef:24" // SEM vlozit MAC lokalneho rozhrania
 
-#define OPCODE_REQ	(1) // ARP ZIADOST
-#define OPCODE_RESP 	(2) // ARP ODPOVED
-#define HW_LEN	(6) // MAC adresa = 6B
-#define IP_LEN	(4) // IP adresa = 4B
-#define IP_PROTO	(0x0800) // IP
-#define HW_TYPE	(0x0001) // Ethernet
+#define ETHER_TYPE  (0x0806) //EtherType hodnota pre ARP
+#define OPCODE_REQ  (1) // ARP ZIADOST
+#define OPCODE_RESP (2) // ARP ODPOVED
+#define HW_LEN	    (6) // MAC adresa = 6B
+#define IP_LEN      (4) // IP adresa = 4B
+#define IP_PROTO    (0x0800) // IP
+#define HW_TYPE     (0x0001) // Ethernet
 
 struct ethHdr{
-	uint8_t dstMAC[6];
-	uint8_t srcMAC[6];
+	uint8_t  dstMAC[6];
+	uint8_t  srcMAC[6];
 	uint16_t ethertype;
-	uint8_t payload[0]; // len formalne s 0-velkostou
+	uint8_t  payload[0]; // len formalne s 0-velkostou
 } __attribute__ ((packed));
 
 struct arpHdr{
 	uint16_t hwType;
 	uint16_t protoType;
-	uint8_t hwLen;
-	uint8_t protoLen;
+	uint8_t  hwLen;
+	uint8_t  protoLen;
 	uint16_t opcode;
-	uint8_t srcMAC[6];
+	uint8_t  srcMAC[6];
 	uint32_t srcIP;
-	uint8_t targetMAC[6];
+	uint8_t  targetMAC[6];
 	uint32_t targetIP;
 } __attribute__ ((packed));
 
@@ -102,7 +103,7 @@ int arpRequestAndResponse(char * dstIP){
 	
 	sscanf(SRC_MAC,"%hhx:%hhx:%hhx:%hhx:%hhx:%hhx", &eth->srcMAC[0], &eth->srcMAC[1], &eth->srcMAC[2], &eth->srcMAC[3], &eth->srcMAC[4], &eth->srcMAC[5]);
 	
-	eth->ethertype = htons(0x806);
+	eth->ethertype = htons(ETHER_TYPE);
 	
 	arp = (struct arpHdr *) eth->payload;
 	arp->hwType = htons(HW_TYPE);
@@ -120,7 +121,7 @@ int arpRequestAndResponse(char * dstIP){
 	memset(&ipAddr, 0, sizeof(struct in_addr));
 	if (inet_aton(SRC_IP, &ipAddr) == 0){
 		fprintf(stderr, "inet_aton(): Cannot convert text to IPv4 address.\n");
-		close(sock);
+		close(sockClient);
 		free((void *) msg);
 		exit(ERROR);
 	} else {
@@ -128,9 +129,9 @@ int arpRequestAndResponse(char * dstIP){
 	}
 
 	memset(&ipAddr, 0, sizeof(struct in_addr));
-	if (inet_aton(DST_IP, &ipAddr) == 0){
+	if (inet_aton(dstIP, &ipAddr) == 0){
 		fprintf(stderr, "inet_aton(): Cannot convert text to IPv4 address.\n");
-		close(sock);
+		close(sockClient);
 		free((void *) msg);
 		exit(ERROR);
 	} else {
@@ -161,6 +162,10 @@ int arpRequestAndResponse(char * dstIP){
 		memset(response, 0, sizeof(struct ethHdr) + sizeof(struct arpHdr));
 		read(sockClient, response, sizeof(struct ethHdr) + sizeof(struct arpHdr));
 		
+		if (response->ethertype != htons(ETHER_TYPE)){
+			continue;
+		}
+
 		if (arp_resp->opcode != htons(OPCODE_RESP)){
 			continue;
 		}

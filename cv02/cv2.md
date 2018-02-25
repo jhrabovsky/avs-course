@@ -21,6 +21,8 @@ _[22-02-2018]_
 
 ## PRAKTICKÁ ČASŤ - PROGRAM
 
+- [!] EtherType hodnota pre ARP je `0x0806`, je možné použiť aj makro `ETHERTYPE_ARP` z hlavičkového súboru `net/ethernet.h` 
+
 - [!] pre jednoduchý prístup k dátam, ktoré sú umiestnené za hlavičkou, použijem `char Payload[0]` ako __posledný__ prvok štruktúry danej hlavičky => rieši problém prístupu k ďalšej hlavičke vo vnútri PDU (Protocol Data Unit):
     + (A) __smerník__ = zaberá 4 bajty. Tie sú navyše v danej štruktúre z pohľadu hlavičky, ktorú štruktúra reprezentuje (~ výplň) => nevhodný pre odosielanie po sieti.
     + (B) __pole s 0-veľkosťou__ = ukazuje na _adresu konca štruktúry_, teda na nasledujúcu hlavičku v správe. Tento prvok ale nezaberá žiadnu pamäť navyše (v porovnaní so smerníkom). Ide len o pomocný _zápis adresy na prvý bajt za štruktúrov_.
