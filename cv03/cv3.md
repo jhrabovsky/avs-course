@@ -34,9 +34,17 @@ _[03-03-2018]_
 - lineárne zreťazený zoznam vyžaduje definovanie základných štruktúr, ktoré použijem pre implementáciu jeho operácii.
 
 - základné štruktúry:
-    + `IntDescriptor` = obsahuje údaje o sieťovom rozhraní - názov rozhrania, index rozhrania a popisovač prislúchajúceho soketu.
+    + `IntDescriptor` = obsahuje údaje o sieťovom rozhraní:
+        * názov rozhrania,
+        * index rozhrania,
+        * popisovač prislúchajúceho soketu.
     + `MACAddress`,
-    + `BTEntry` = položka prepínacej tabuľky - odkaz na predchádzajúcu a nasledujúcu položku, MAC adresa, čas poslednej aktualizácie a odkaz na sieťové rozhranie.
+    + `BTEntry` = položka prepínacej tabuľky, ktorá obsahuje:
+        * odkaz na predchádzajúcu položku,
+        * odkaz na nasledujúcu položku,
+        * MAC adresu,
+        * čas poslednej aktualizácie,
+        * odkaz na sieťové rozhranie.
     + `EthFrame`.
 
 - základné fcie:
