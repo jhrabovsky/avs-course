@@ -58,7 +58,7 @@ _[03-03-2018]_
     + `FlushBT`,
 
 - `UpdateOrAddMACEntry` = vykoná aktualizáciu BT podľa procesu učenia.
-- odkaz na začiatok BT sa nachádza vo virtuálnom prvku **HEAD**, ktorý je prvým prvkom BT, ale neobsahuje platné údaje.
+- odkaz na začiatok BT sa nachádza vo virtuálnom prvku `HEAD`, ktorý je prvým prvkom BT, ale neobsahuje platné údaje.
 - `time()` = získam aktuálny čas systému (v sekundách od začiatku epochy - 1.1.1970) => `man 2 time`.
 
 ### NASTAVENIE ROZHRANÍ
