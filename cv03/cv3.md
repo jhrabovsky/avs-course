@@ -11,7 +11,7 @@ _[03-03-2018]_
 - základné operácie mostu:
     + **UČENIE** = príjmem rámec a aktualizujem BT:
         1. Ak sa **zdrojová** MAC adresa rámca v BT ešte nenachádza, vytvorím nový záznam a vložím ho do BT.
-        2. Inak vyberem existujúci záznam a prepíšem rozhranie v zázname na vstupné rozhranie prijatého rámca.
+        2. Inak vyberiem existujúci záznam a prepíšem rozhranie v zázname na vstupné rozhranie prijatého rámca.
     + **PREPÍNANIE** = vyhľadám záznam v BT podľa **cieľovej** MAC adresy rámca:
         1. Ak záznam existuje, odošlem rámec len na rozhranie uvedené v zázname.
         2. Inak odošlem rámec _všetkými_ rozhraniami. [!] Rámec NIKDY neodosielam na rozhranie, na ktorom som tento rámec prijal.
