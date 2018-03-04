@@ -381,13 +381,13 @@ UpdateOrAddMACEntry (struct BTEntry *Table, const struct MACAddress *Address,
       E->address = *Address;
       E->IFD = (struct IntDescriptor *) IFD;
 
-      printf ("Adding address %x:%x:%x:%x:%x:%x to interface %s\n",
-	      E->Address.MAC[0],
-	      E->Address.MAC[1],
-	      E->Address.MAC[2],
-	      E->Address.MAC[3],
-	      E->Address.MAC[4],
-	      E->Address.MAC[5], E->IFD->name);
+      printf ("Adding address %02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx to interface %s\n",
+	      E->address.MAC[0],
+	      E->address.MAC[1],
+	      E->address.MAC[2],
+	      E->address.MAC[3],
+	      E->address.MAC[4],
+	      E->address.MAC[5], E->IFD->name);
       InsertBTEntry (Table, E);
       PrintBT (Table);
     }
