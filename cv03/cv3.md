@@ -85,7 +85,7 @@ _[03-03-2018]_
 
 - TOPOLÓGIA: PC1 -- (net1) --> Bridge <-- (net2) -- PC2, kde:
     + net1 a net2 sú _internal network_,
-    + PC1 a PC2 sú _VM (MiniDebian)_ => pridelené IP adresy zo spoločnej siete 192.168.1.0/24,
+    + PC1 a PC2 sú _VM (MiniDebian)_ => pridelené IP adresy zo spoločnej siete 192.168.1.0/24, [!] potrebné nastaviť promiskuitný režim siete pre všetky virtuálne stroje na `Allow All`.
     + Bridge je VM, kde je spustený program pre prepínanie => eth0 a eth1 nemajú pridelené IP adresy a sú aktivované cez `ip link set <rozhranie> up`.
 
 ## ROZŠIRUJÚCE ÚLOHY
