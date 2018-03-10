@@ -19,15 +19,15 @@ _[03-03-2018]_
 ## PROGRAM
 
 - vytvorím údajovú štruktúru **OBOJSMERNÝ LINEÁRNE ZREŤAZENÝ ZOZNAM** => navrhnem a realizujem základné fcie pre manipuláciu s údajovou štruktúrou:
-    - vytvorenie prázdnej tabuľky,
-    - pridanie záznamu do tabuľky,
-    - vyhľadanie záznamu v tabuľke podľa hodnoty (kľúč),
-    - odstránenie záznamu z tabuľky,
-    - odstránenie tabuľky.
+    + vytvorenie prázdnej tabuľky,
+    + pridanie záznamu do tabuľky,
+    + vyhľadanie záznamu v tabuľke podľa hodnoty (kľúč),
+    + odstránenie záznamu z tabuľky,
+    + odstránenie tabuľky.
 
 - operácie mostu môžem realizovať:
-    - (A) _sekvenčne_ v hlavnej funkcii (`main`),
-    - (B) _paralelne_ v samostatných vláknach (úloha pre CV4).
+    + (A) _sekvenčne_ v hlavnej funkcii (`main`),
+    + (B) _paralelne_ v samostatných vláknach (úloha pre CV4).
 
 ### PREPÍNACIA TABUĽKA
 
@@ -77,7 +77,6 @@ _[03-03-2018]_
 - obsluhujem prichádzajúce rámce v nekonečnej slučke tak, ako vyžaduje správanie mostu.
 - obsluha viacerých soketov súčasne vyžaduje neblokujúcu operáciu `read()` (príjem rámca) => použijem `select()` nad soketmi, ktorým môžem sledovať viacero rozhraní súčasne (ďalšie informácie v CV4).
     + `FD_ZERO`, `FD_SET`, `FD_ISSET` = makrá dostupné pre manipuláciu s `select()` => (`man select`).
-
 - _read()_ = štandardne blokujúca operácia => program čaká (je blokovaný), kým neprídu údaje (rámce) zo siete.
 - _write()_ = štandardne neblokujúca operácia => odoslanie rámca je za normálnych okolností okamžité.
 
