@@ -10,7 +10,7 @@ _[04-05-2018]_
 
 ## Program
 
-- vytvoríme program z CV2 (ARP), v ktorom nahradíme prácu so surovými soketmi za použitie funkcií s knižníc _libnet_ a _libpcap_.
+- vytvoríme program z CV2 (ARP), v ktorom nahradíme prácu so surovými soketmi za použitie funkcií z knižníc _libnet_ a _libpcap_.
 - základné úlohy:
     + pravidelné odosielanie ARP žiadostí na IP adresu, ktorú zadám ako vstupný argument pri spustení programu.
     + príjem rámcov, overenie ARP odpovedí na mnou posielané ARP žiadosti.
@@ -40,7 +40,7 @@ _[04-05-2018]_
 ### LIBNET
 
 - nainštalujeme balík `libnet1-dev`, aby sme získali prístup ku knižnici a k jej funkciam cez hlavičkový súbor _libnet.h_.
-- knižnica nemá manuálové stránky priamo pre každú z funkcií => zoznam funkcií získame cez `man libnet-functions.h`.
+- knižnica nemá manuálové stránky priamo pre každú z funkcií => zoznam funkcií získame cez `man libnet-functions.h`. Alternatívou je inštalácia balíka `libnet1-doc`, ktorý ponúka prehľadnú webovú stránku umiestnenú lokálne v `/usr/share/doc/libnet1-doc/html/`.
 
 - Postup pre vytvorenie a odoslanie vlastného rámca:
     1. deklarujeme smerník na typ `libnet_t`, ktorý reprezentuje kontext pre LIBNET (mnou vytvorený rámec).
@@ -54,7 +54,7 @@ _[04-05-2018]_
 
 - `libnet_geterror()` vráti textový popis poslednej zaznamenanej chyby, ktorá vznikla volaním funkcie pre libnet kontext.
 - Ethernetovú hlavičku nastavujeme len v prípade kontextu typu `LIBNET_LINK` a `LIBNET_LINK_ADV` => rámec má rovnaké správanie ako v prípade soketu z domény `AF_PACKET` typu `SOCK_RAW`.
-- __[!]__ pridáme knižnicu _net_ do ECLIPSE alebo použijem `-lnet`  pri kompilácii zdrojového kódu v termináli.
+- __[!]__ pridáme knižnicu _net_ do ECLIPSE alebo použijeme `-lnet`  pri kompilácii zdrojového kódu v termináli.
 
 #### Príklad - ARP žiadosť
 
