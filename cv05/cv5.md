@@ -1,68 +1,68 @@
-_[18-03-2017]_
+_[04-05-2018]_
 
-# CV5 - AVS
+# Libnet a Libpcap - Knižnice pre príjem a odosielanie vlastných rámcov
 
-## TEÓRIA - KNIŽNICE PRE PRÍJEM A ODOSIELANIE VLASTNÝCH RÁMCOV
+## Teória
 
 - témou cvičenia je praktická ukážka knižníc `libnet` a `libpcap`, ktoré nie sú závislé od OS.
-    + __LIBNET__ = ponúka fcie pre generovanie rámcov s vlastným obsahom a ich odosielanie. Knižnica využíva interne surové sockety.
-    + __LIBPCAP__ = ponúka fcie pre príjem (odchytávanie) rámcov, pričom podporuje použitie __BSD filtrov__, ktoré používajú mnohé nástroje (tcpdump, wireshark a iné).
+    + __LIBNET__ = ponúka funkcie pre generovanie rámcov s vlastným obsahom a ich odosielanie, pričom interne sú použité surové sokety (`SOCK_RAW`).
+    + __LIBPCAP__ = ponúka funkcie pre príjem (odchytávanie) rámcov. Knižnica podporuje použitie __BSD filtrov__, ktoré sú využívané v mnohých nástrojoch (tcpdump, wireshark a iné).
 
-## PROGRAM
+## Program
 
-- vytvorím program z CV2 (ARP), v ktorom nahradím prácu so surovými socketmi za použitie fcií s knižníc _libnet_ a _libpcap_.
-- základné úlohy: 
+- vytvoríme program z CV2 (ARP), v ktorom nahradíme prácu so surovými soketmi za použitie funkcií s knižníc _libnet_ a _libpcap_.
+- základné úlohy:
     + pravidelné odosielanie ARP žiadostí na IP adresu, ktorú zadám ako vstupný argument pri spustení programu.
     + príjem rámcov, overenie ARP odpovedí na mnou posielané ARP žiadosti.
     + oznámenie v prípade zhody => výpis stručnej správy na obrazovku.
 
 ### LIBPCAP
 
-- nainštalujem balík `libpcap-dev`, aby som získal prístup ku knižnici => získam hlavičkový súbor _pcap/pcap.h_. 
-- `man pcap` => popis fcií a poradie, v akom ich mám používať.
+- nainštalujeme balík `libpcap-dev`, aby sme získali prístup ku knižnici => získame hlavičkový súbor _pcap/pcap.h_.
+- `man pcap` = popis funkcií a poradie, v akom ich máme používať.
 
 - Postup pre odchytávanie rámcov na sledovanom rozhraní:
-    1. zvolím sieťové rozhranie, na ktorom idem odchytávať rámce => použijem názov rozhrania.
-        - ak názov rozhrania nepoznám, vyhľadám použiteľné rozhranie => `pcap_lookupdev()`, `pcap_findalldevs()`.
-    2. deklarujem smerník na objekt (`pcap_t *`) pre manipuláciu s rozhraním => vytvorím objekt `pcap_create()`.
-        - ak chcem odchytávať prevádzku na všetkých rozhraniach, použijem `NULL` ako argument pre názov rozhrania. 
-    3. nastavím rozširujúce vlastnosti odchytávania, napr. _promiskuitný režim_ (`pcap_set_promisc()`).
-    4. aktivujem odchytávanie => `pcap_activate()`.
-    5. prečítam a spracujem prichádzajúce rámce => `pcap_next()`, `pcap_next_ex()`,  `pcap_dispatch()`, `pcap_loop()`.
-    6. zatvorím popisovač cez `pcap_close()`.
+    1. zvolíme sieťové rozhranie, na ktorom ideme odchytávať rámce => použijeme názov rozhrania (získaný napríklad z výpisu `ip link` v termináli).
+        + ak názov rozhrania nepoznáme, vyhľadáme použiteľné rozhranie => `pcap_lookupdev()`, `pcap_findalldevs()`.
+    2. deklarujeme smerník na objekt (`pcap_t *`) pre manipuláciu s rozhraním => vytvoríme objekt `pcap_create()`.
+        + ak chceme odchytávať prevádzku na všetkých rozhraniach, použijeme `NULL` ako argument pre názov rozhrania.
+    3. nastavíme rozširujúce vlastnosti odchytávania, napr. _promiskuitný režim_ (`pcap_set_promisc()`).
+    4. aktivujeme odchytávanie => `pcap_activate()`.
+    5. prečítame a spracujem prichádzajúce rámce => `pcap_next()`, `pcap_next_ex()`,  `pcap_dispatch()`, `pcap_loop()`.
+    6. zatvoríme popisovač cez `pcap_close()`.
 
 - `struct pcap_pkthdr` obsahuje metadata o prijatom rámci (čas príchodu, dĺžka uloženej časti rámca, celková dĺžka).
-- `pcap_dispatch()` a `pcap_loop()` používajú "callback" fciu, ktorá sa automaticky použije pre spracovanie každého z prijatých rámcov => `void (*pcap_handler)(u_char * user, const struct pcap_pkthdr * pktHdr, const u_char *pkt)`.
-    + počet odchytených rámcov nastavím v 2. argumente (0 = nekonečno).
+- `pcap_dispatch()` a `pcap_loop()` používajú "callback" funkciu, ktorá sa automaticky použije pre spracovanie každého z prijatých rámcov => `void (*pcap_handler)(u_char * user, const struct pcap_pkthdr * pktHdr, const u_char *pkt)`.
+    + počet odchytených rámcov nastavíme v druhom argumente (`0` = nekonečno).
 
-- __[!]__ pridám knižnicu _pcap_ do ECLIPSE alebo použijem `-lpcap`  pri kompilácii zdrojového kódu z príkazového riadku.
+- __[!]__ pridáme knižnicu _pcap_ do ECLIPSE alebo použijeme `-lpcap`  pri kompilácii zdrojového kódu v termináli.
 
 ### LIBNET
 
-- nainštalujem balík `libnet1-dev`, aby som získal prístup ku knižnici a k jej fciam cez hlavičkový súbor _libnet.h_.
-- knižnica nemá manuálové stránky priamo pre každú z fcií => zoznam fcií získam cez `man libnet-functions.h`.
+- nainštalujeme balík `libnet1-dev`, aby sme získali prístup ku knižnici a k jej funkciam cez hlavičkový súbor _libnet.h_.
+- knižnica nemá manuálové stránky priamo pre každú z funkcií => zoznam funkcií získame cez `man libnet-functions.h`.
 
 - Postup pre vytvorenie a odoslanie vlastného rámca:
-    1. deklarujem smerník na typ `libnet_t`, ktorý reprezentuje kontext pre LIBNET (mnou vytvorený rámec).
-    2. inicializujem kontext => `libnet_init()` => uvediem typ rámca (`LIBNET_LINK`, `LIBNET_RAW4` a iné), ktorý idem vyskladať a názov rozhrania, cez ktoré plánujem rámec odoslať (NULL = rozhranie je zvolené systémom).
-    3. deklarujem TAGY, do ktorých uložím hlavičky rámca => `libnet_ptag_t`.
-    4. nastavím obsah hlavičiek => každý protokol má vlastný formát hlavičky, preto existuje pre každý protokol samostatná fcia pre vytvorenie a nastavenie jeho hlavičky => `libnet_build_<protokol>()`, `libnet_autobuild_<protokol>()`. Druhý typ fcií nastaví viaceré polia hlavičky na predvolené hodnoty. __[!]__ Hlavičky nastavujem vždy v poradí: L7 -> L2.
-        - Príklad: ARP hlavička (`libnet_build_arp()`) -> Ethernet hlavička (`libnet_build_ethernet()`).
-    5. odošlem rámec => `libnet_write()`.
-    6. zruším kontext => `libnet_destroy()`.   
+    1. deklarujeme smerník na typ `libnet_t`, ktorý reprezentuje kontext pre LIBNET (mnou vytvorený rámec).
+    2. inicializujeme kontext => `libnet_init()` => uvedieme typ rámca (`LIBNET_LINK`, `LIBNET_RAW4` a iné), ktorý ideme vyskladať a názov rozhrania, cez ktoré plánujeme odoslať rámec (`NULL` = rozhranie je zvolené systémom).
+    3. deklarujeme TAGY, do ktorých uložíme jednotlivé hlavičky rámca => `libnet_ptag_t`.
+    4. nastavíme obsah hlavičiek => každý protokol má vlastný formát hlavičky, preto existuje pre každý protokol samostatná funkcia pre vytvorenie a nastavenie jeho hlavičky => `libnet_build_<protokol>()`, `libnet_autobuild_<protokol>()`. Druhý typ funkcií nastaví viaceré polia hlavičky automaticky na predvolené hodnoty.
+        + __[!]__ Hlavičky nastavujeme vždy v poradí: L7 -> L2.
+        + Príklad: ARP hlavička (`libnet_build_arp()`) -> Ethernet hlavička (`libnet_build_ethernet()`).
+    5. odošleme rámec => `libnet_write()`.
+    6. zrušíme kontext => `libnet_destroy()`.
 
-- `libnet_geterror()` vráti textový popis poslednej zaznamenanej chyby, ktorá vznikla volaním fcie pre libnet kontext.
-- Ethernetovú hlavičku nastavujem len v prípade kontextu typu __LIBNET_LINK__ a __LIBNET_LINK_ADV__ => rámec má rovnaké správanie ako v prípade socketu z domény __AF_PACKET__ typu __SOCK_RAW__.
-- __[!]__ pridám knižnicu _net_ do ECLIPSE alebo použijem `-lnet`  pri kompilácii zdrojového kódu z príkazového riadku.
+- `libnet_geterror()` vráti textový popis poslednej zaznamenanej chyby, ktorá vznikla volaním funkcie pre libnet kontext.
+- Ethernetovú hlavičku nastavujeme len v prípade kontextu typu `LIBNET_LINK` a `LIBNET_LINK_ADV` => rámec má rovnaké správanie ako v prípade soketu z domény `AF_PACKET` typu `SOCK_RAW`.
+- __[!]__ pridáme knižnicu _net_ do ECLIPSE alebo použijem `-lnet`  pri kompilácii zdrojového kódu v termináli.
 
-#### PRÍKLAD - ARP ŽIADOSŤ
- 
-1. vytvorím kontext pre libnet typu LIBNET_LINK, keďže ARP nepoužíva IPv4 => `libnet_init()`.
-2. nastavím ARP hlavičku => `libnet_autobuild_arp()`.
-3. nastavím ETHERNET hlavičku => `libnet_autobuild_ethernet()`.
-4. odošlem rámec => `libnet_write()`.
-5. zatvorím kontext => `libnet_destroy()`.  
+#### Príklad - ARP žiadosť
 
-- pre jednoduchosť nastavím hlavičky cez 2. typ fcií => knižnica nastaví viaceré hodnoty za mňa.
-- _IP a MAC adresy_ zadávam v __NETWORK_BYTE_ORDER__.
-- _OPCODE_ a _TYPE_ zadávam v __HOST_BYTE_ORDER__.
+1. vytvoríme kontext pre libnet typu LIBNET_LINK, keďže ARP nepoužíva IPv4 => `libnet_init()`.
+2. nastavíme ARP hlavičku => `libnet_autobuild_arp()`.
+3. nastavíme ETHERNET hlavičku => `libnet_autobuild_ethernet()`.
+4. odošleme rámec => `libnet_write()`.
+5. zatvoríme kontext => `libnet_destroy()`.
+
+- _IP a MAC adresy_ zadávame v **NETWORK_BYTE_ORDER**.
+- _OPCODE_ a _TYPE_ zadávame v **HOST_BYTE_ORDER**.
