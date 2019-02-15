@@ -1,12 +1,12 @@
 ---
-title: "AVS - CV2: generovanie ARP žiadostí"
+title: "AVS - CV2: Address Resolution Protocol"
 author: [Jakub Hrabovský, Martin Kontšek]
 date: "2018-02-22"
 ...
 
-# AVS - CV2: generovanie ARP žiadostí
+# AVS - CV2: Address Resolution Protocol
 
-## TEORETICKÁ ČASŤ - ARP
+## Teoretická časť
 
 - Address Resolution Protocol (ARP):
     + _ČO_ to je?
@@ -22,7 +22,7 @@ date: "2018-02-22"
 - teoretický rozbor jednotlivých polí v hlavičke ARP => ich význam a možné použitie pre implementáciu nástroja `arping`, ktorý odosiela ARP žiadosti ohľadom konkrétnej IP adresy a prijíma (spracuje) príslušné odpovede.
 - [!] konkrétny príklad deklarácie štruktúry pre ARP a rôznych podporných makier je uvedený v `net/if_arp.h` (prípadne v `linux/if_arp.h`) a `netinet/if_ether.h`.
 
-## PRAKTICKÁ ČASŤ - PROGRAM
+## Praktická časť - Program
 
 - [!] EtherType hodnota pre ARP je `0x0806`, je možné použiť aj makro `ETHERTYPE_ARP` z hlavičkového súboru `net/ethernet.h`
 
@@ -47,7 +47,7 @@ date: "2018-02-22"
 
 - pre jednotlivé položky MAC adresy využijem _smerníkovú aritmetiku_ => `*(srcMAC + i)` = adresa i-teho bajtu zdrojovej MAC adresy (počítam od 0). Tento zápis je zhodný so zápisom: `srcMAC[i]`.
 
-### PREVOD IP ADRESY: TEXT<->ČÍSLO
+### Prevod IPv4 adresy: text<->číslo
 
 - IP adresa má dva formáty zápisu:
     + (A) 32-bitové binárne číslo (network-byte-order).
@@ -61,8 +61,7 @@ date: "2018-02-22"
     + číselný formát je vhodný pre systém - dáta v pamäti.
     + textový formát je vhodný pre človeka - výpis na terminál.
 
------
-
+### Spracovanie prijatých ARP odpovedí
 - _zachytenie odpovede_ na ARP žiadosti, ktoré sú určené pre mňa => sledujem prijaté správy a filtrujem (hľadám) _očakávané/požadované_ položky v ARP hlavičke (MAC a IP adresy).
     + pri spracovaní prijatých správ zvolím veľkosť dôležitých dát, ktoré musím spracovať (zvyšok ignorujem) => alokácia pamäte + čakanie na správu (nekonečný cyklus).
 
@@ -78,7 +77,7 @@ date: "2018-02-22"
     + `response->OPCODE == ARP_RESP` (je ARP odpoveď),
     + `response->SRC_IP == request->TARGET_IP` (odpoveď prišla zo stanice, na ktorú som sa pýtal v mojej ARP žiadosti).
 
-## VLÁKNA
+### Vlákna
 
 - pridám `#include <pthread.h>`, aby som získal prístup k funkciam pre správu vlákien.
     + `man pthread_create` - popisuje vytvorenie a spustenie vlákna. Typ štartovacej funkcie sa musí zhodovať s typom, ktorý je uvedený v manuáli (funkčný prototyp pre `pthread_create()`) => `void * <názov-funkcie>(void * args);`.
@@ -98,16 +97,16 @@ date: "2018-02-22"
 - [!] pri kompilácii pridám knižnicu pre podporu vlákien - `libpthread` => `-lpthread` (staršie kompilátory) alebo `-pthread` (novšie kompilátory).
 - [ECLIPSE] pridanie knižnice `pthread`  => `Project -> Properties -> C/C++ General -> Paths & Symbols -> Libraries`.
 
-## ROZŠIRUJÚCE ÚLOHY
+## Rozširujúce úlohy
 
-- **ÚLOHA 1** - oskenujem cez `arping` celú lokálnu sieť => objavím a vypíšem na terminál všetky aktívne sieťové zariadenia v lokálnej sieti.
-- **ÚLOHA 2** - pridám podporu pre _VLAN_ => vyžaduje pridanie značky (tagu) za `SRC_MAC` a pred `EtherType` v Ethernetovej hlavičke.
+- **Úloha 1** - oskenujem cez `arping` celú lokálnu sieť => objavím a vypíšem na terminál všetky aktívne sieťové zariadenia v lokálnej sieti.
+- **Úloha 2** - pridám podporu pre _VLAN_ => vyžaduje pridanie značky (tagu) za `SRC_MAC` a pred `EtherType` v Ethernetovej hlavičke.
     + `VLAN-TAG` = `TAG-TYPE` (0x8100 pre 802.1Q - 16b), `PRI` (3b), `DEI` (= CFI - 1b), `VLAN-ID` (000 až FFF - 12b).
     + pridám `VLAN-TAG` do Ethernetovej hlavičky pred `EtherType`.
     + použijem len jednu premennú pre `PRI`, `DEI` a `VLAN-ID`, ktoré tak budú vyjadrené ako súčasť jedného 16-bitového čísla (2B) -> [PRI, DEI, VLAN-ID].
-- **ÚLOHA 3** - __STP__ = generovanie STP rámcov s vhodným obsahom.
-- **ÚLOHA 4** - __CDP__ = ohlasujem seba cez vhodne generované CDP rámce (alternatívou je __LLDP__).
-- **ÚLOHA 5** - implementujem správanie _mostu_ (softvérový prepínač) => tejto téme sa budem venovať aj na ďalších cvičeniach.
+- **Úloha 3** - __STP__ = generovanie STP rámcov s vhodným obsahom.
+- **Úloha 4** - __CDP__ = ohlasujem seba cez vhodne generované CDP rámce (alternatívou je __LLDP__).
+- **Úloha 5** - implementujem správanie _mostu_ (softvérový prepínač) => tejto téme sa budem venovať aj na ďalších cvičeniach.
     + nastavenie _promiskuitného režimu_ => príjem všetkých rámcov bez ohľadu na ich cieľovú MAC adresu.
     + zameranie na prepínaciu tabuľku => ukladanie, aktualizácia a vyhľadávanie => voľba vhodnej údajovej štruktúry (lineárne zreťazený zoznam s operáciami: pridaj, vymaž a vyhľadaj).
     + testovanie implementácie cez dva virtuálne stroje (Bridge a Klient1) a natívny systém (Klient2) cez premostenie prepojenia.
