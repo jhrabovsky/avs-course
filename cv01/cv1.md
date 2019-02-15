@@ -72,7 +72,7 @@ _[17-02-2018]_
 - [!] (A) _LITTLE-ENDIAN_ [LE] a (B) _BIG-ENDIAN_ [BE] => určuju usporiadanie bajtov vo _viacbajtových_ premenných.  
     * (A) uloženie nižších bajtov premennej na _nižšie adresy_ v pamäti
     * (B) uloženie nižších bajtov premennej na _vyššie adresy_ v pamäti 
-    * => rôzne **CPU** používajú rzzne poradie bajtov => Intel je _LE_ ale PowerPC (v prepínačoch) je _BE_.
+    * => rôzne **CPU** používajú rôzne poradie bajtov => Intel je _LE_ ale PowerPC (v prepínačoch) je _BE_.
     * zjednotenie pre rôzne systémy z pohľadu _sieťovej komunikácie_: **Network-byte order** (v sieti počas prenosu) a **Host-byte order** (na koncovej stanici).
   
 - konverzia (`arpa/inet.h`) : `ntohs()`, `ntohl()`, `htons()`, `htonl()`, kde _s_=short (_short_), _l_=long (_int_).  
