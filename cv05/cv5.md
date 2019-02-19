@@ -1,14 +1,18 @@
-_[04-05-2018]_
+---
+title: "AVS - CV5: Libnet a Libpcap"
+author: [Jakub Hrabovský, Martin Kontšek]
+date: "2018-05-04"
+...
 
-# Libnet a Libpcap - Knižnice pre príjem a odosielanie vlastných rámcov
+# AVS - CV5: Libnet a Libpcap - Knižnice pre príjem a odosielanie vlastných rámcov
 
-## Teória
+## Teoretická časť
 
 - témou cvičenia je praktická ukážka knižníc `libnet` a `libpcap`, ktoré nie sú závislé od OS.
-    + __LIBNET__ = ponúka funkcie pre generovanie rámcov s vlastným obsahom a ich odosielanie, pričom interne sú použité surové sokety (`SOCK_RAW`).
-    + __LIBPCAP__ = ponúka funkcie pre príjem (odchytávanie) rámcov. Knižnica podporuje použitie __BSD filtrov__, ktoré sú využívané v mnohých nástrojoch (tcpdump, wireshark a iné).
+    + __LIBNET__ - ponúka funkcie pre generovanie rámcov s vlastným obsahom a ich odosielanie, pričom interne sú použité surové sokety (`SOCK_RAW`).
+    + __LIBPCAP__ - ponúka funkcie pre príjem (odchytávanie) rámcov. Knižnica podporuje použitie __BSD filtrov__, ktoré sú využívané v mnohých nástrojoch (tcpdump, wireshark a iné).
 
-## Program
+## Praktická časť - Program
 
 - vytvoríme program z CV2 (ARP), v ktorom nahradíme prácu so surovými soketmi za použitie funkcií z knižníc _libnet_ a _libpcap_.
 - základné úlohy:
@@ -16,10 +20,10 @@ _[04-05-2018]_
     + príjem rámcov, overenie ARP odpovedí na mnou posielané ARP žiadosti.
     + oznámenie v prípade zhody => výpis stručnej správy na obrazovku.
 
-### LIBPCAP
+### Libpcap
 
 - nainštalujeme balík `libpcap-dev`, aby sme získali prístup ku knižnici => získame hlavičkový súbor _pcap/pcap.h_.
-- `man pcap` = popis funkcií a poradie, v akom ich máme používať.
+- `man pcap` - popis funkcií a poradie, v akom ich máme používať.
 
 - Postup pre odchytávanie rámcov na sledovanom rozhraní:
     1. zvolíme sieťové rozhranie, na ktorom ideme odchytávať rámce => použijeme názov rozhrania (získaný napríklad z výpisu `ip link` v termináli).
@@ -37,7 +41,7 @@ _[04-05-2018]_
 
 - __[!]__ pridáme knižnicu _pcap_ do ECLIPSE alebo použijeme `-lpcap`  pri kompilácii zdrojového kódu v termináli.
 
-### LIBNET
+### Libnet
 
 - nainštalujeme balík `libnet1-dev`, aby sme získali prístup ku knižnici a k jej funkciam cez hlavičkový súbor _libnet.h_.
 - knižnica nemá manuálové stránky priamo pre každú z funkcií => zoznam funkcií získame cez `man libnet-functions.h`. Alternatívou je inštalácia balíka `libnet1-doc`, ktorý ponúka prehľadnú webovú stránku umiestnenú lokálne v `/usr/share/doc/libnet1-doc/html/`.
@@ -64,5 +68,5 @@ _[04-05-2018]_
 4. odošleme rámec => `libnet_write()`.
 5. zatvoríme kontext => `libnet_destroy()`.
 
-- _IP a MAC adresy_ zadávame v **NETWORK_BYTE_ORDER**.
-- _OPCODE_ a _TYPE_ zadávame v **HOST_BYTE_ORDER**.
+- _IP a MAC adresy_ zadávame v **network byte order**.
+- _OPCODE_ a _TYPE_ zadávame v **host byte order**.
