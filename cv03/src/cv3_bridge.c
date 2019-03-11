@@ -20,6 +20,7 @@
 #define	MTU	(1500)
 #define MACSIZE (6) // alternativa: pripojit <linux/if_ether.h> a pouzit ETH_ALEN
 #define MAXINTERFACES (8)
+#define MININTERFACES (2)
 
 #define ERROR	(1)
 #define SUCCESS (0)
@@ -30,7 +31,7 @@
  * ktorym na tomto rozhrani citame a odosielame ramce.
  *
  */
- 
+
 struct IntDescriptor {
   char name[IFNAMSIZ];
   unsigned int intNo;
@@ -38,7 +39,7 @@ struct IntDescriptor {
 };
 
 /*
- * Struktura MACAddress obaluje 6-bajtove pole pre uchovavanie MAC adresy. 
+ * Struktura MACAddress obaluje 6-bajtove pole pre uchovavanie MAC adresy.
  * Obalenie do struktury je vyhodne pri kopirovani (priradovani) MAC adresy
  * medzi premennymi rovnakeho typu.
  *
@@ -50,7 +51,7 @@ struct MACAddress {
 
 /*
  * Struct BTEntry je prvok zretazeneho zoznamu, ktory reprezentuje riadok
- * prepinacej tabulky.  V riadku je okrem smernikov na dalsi a predosly
+ * prepinacej tabulky. V riadku je okrem smernikov na dalsi a predosly
  * prvok ulozena MAC adresa a smernik na rozhranie, kde je pripojeny klient,
  * ako aj cas, kedy sme videli tohto odosielatela naposledy.
  *
@@ -64,7 +65,7 @@ struct BTEntry {
   struct IntDescriptor *IFD;
 };
 
-/* 
+/*
  * Struct EthFrame reprezentuje zakladny ramec podla IEEE 802.3 s maximalnou
  * velkostou tela.
  *
@@ -78,7 +79,7 @@ struct EthFrame {
 } __attribute__ ((packed));
 
 /*
- * Funkcia pre vytvorenie noveho riadku tabulky.  Riadok nebude zaradeny do
+ * Funkcia pre vytvorenie noveho riadku tabulky. Riadok nebude zaradeny do
  * tabulky, bude mat len inicializovane vnutorne hodnoty.
  *
  */
@@ -114,6 +115,11 @@ InsertBTEntry (struct BTEntry *Head, struct BTEntry *Entry)
   Entry->next = Head->next;
   Entry->previous = Head;
   Head->next = Entry;
+
+  if (Entry->next != NULL){
+    // Tabulka uz obsahuje aspon jeden zaznam
+    (Entry->next)->previous = Entry;
+  }
 
   return Entry;
 }
@@ -163,11 +169,11 @@ FindBTEntry (struct BTEntry *Head, const struct MACAddress *Address)
 
   I = Head->next;
   while (I != NULL){
-      if (memcmp (&(I->address), Address, MACSIZE) == 0)
-		return I;
+    if (memcmp (&(I->address), Address, MACSIZE) == 0)
+		  return I;
 
-      I = I->next;
-    }
+    I = I->next;
+  }
 
   return NULL;
 }
@@ -190,7 +196,7 @@ EjectBTEntryByItem (struct BTEntry *Head, struct BTEntry *Item)
   (Item->previous)->next = Item->next;
   if (Item->next != NULL)
     (Item->next)->previous = Item->previous;
-    
+
   Item->next = Item->previous = NULL;
 
   return Item;
@@ -201,7 +207,7 @@ EjectBTEntryByItem (struct BTEntry *Head, struct BTEntry *Item)
  * z pamate, bude len odstraneny z tabulky.  Vyhladava sa podla MAC adresy.
  *
  */
- 
+
 struct BTEntry *
 EjectBTEntryByMAC (struct BTEntry *Head, const struct MACAddress *Address)
 {
@@ -214,10 +220,8 @@ EjectBTEntryByMAC (struct BTEntry *Head, const struct MACAddress *Address)
     return NULL;
 
   E = FindBTEntry (Head, Address);
-  if (E == NULL)
-    return NULL;
-	
-  E = EjectBTEntryByItem(Head, E);
+  if (E != NULL)
+    E = EjectBTEntryByItem(Head, E);
 
   return E;
 }
@@ -258,9 +262,9 @@ PrintBT (const struct BTEntry *Head)
 	 printf("Table doesn't exist!\n");
 	 return;
   }
-  
+
   // Vypis HLAVICKY tab
-  
+
   memset (TableLine, '-', TLLEN - 2);
   TableLine[0] = TableLine[2 + IFNAMSIZ + 1] = TableLine[TLLEN - 2] = '+';
   TableLine[TLLEN - 1] = '\0';
@@ -307,7 +311,7 @@ PrintBT (const struct BTEntry *Head)
       I = I->next;
     }
 
-  // Vypis ukoncovacej ciary 
+  // Vypis ukoncovacej ciary
   memset (TableLine, '-', TLLEN - 2);
   TableLine[0] = TableLine[2 + IFNAMSIZ + 1] = TableLine[TLLEN - 2] = '+';
   TableLine[TLLEN - 1] = '\0';
@@ -349,9 +353,9 @@ FlushBT (struct BTEntry *Head)
 }
 
 /*
- * Funkcia realizujuca obsluhu zdrojovej adresy v prepinacej tabulke.  Ak
+ * Funkcia realizujuca obsluhu zdrojovej adresy v prepinacej tabulke. Ak
  * adresa v tabulke neexistuje, funkcia pre nu vytvori a do tabulky vlozi
- * novy zaznam.  Ak adresa v tabulke existuje, funkcia podla potreby
+ * novy zaznam. Ak adresa v tabulke existuje, funkcia podla potreby
  * aktualizuje zaznam o vstupnom rozhrani, a v kazdom pripade aktualizuje
  * cas, kedy sme naposledy tuto zdrojovu adresu videli.
  *
@@ -367,35 +371,37 @@ UpdateOrAddMACEntry (struct BTEntry *Table, const struct MACAddress *Address,
     return NULL;
 
   /* Vyhladame zdrojovu adresu v tabulke. */
-  if ((E = FindBTEntry (Table, Address)) == NULL)
-    {
+  if ((E = FindBTEntry (Table, Address)) == NULL){
 
-      /* Adresa je neznama. Zalozime pre nu novy zaznam. */
-      E = CreateBTEntry ();
-      if (E == NULL){
-		perror ("malloc");
-		/* TODO: upratat */
-		exit (ERROR);
-	  }
+    /* Adresa je neznama. Zalozime pre nu novy zaznam. */
+    E = CreateBTEntry ();
 
-      E->address = *Address;
-      E->IFD = (struct IntDescriptor *) IFD;
-
-      printf ("Adding address %02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx to interface %s\n",
-	      E->address.MAC[0],
-	      E->address.MAC[1],
-	      E->address.MAC[2],
-	      E->address.MAC[3],
-	      E->address.MAC[4],
-	      E->address.MAC[5], E->IFD->name);
-      InsertBTEntry (Table, E);
-      PrintBT (Table);
+    if (E == NULL){
+	    perror ("malloc");
+	    /* TODO: upratat */
+	    exit (ERROR);
     }
-  else if (E->IFD != IFD) {
+
+    E->address = *Address;
+    E->IFD = (struct IntDescriptor *) IFD;
+
+    printf ("Adding address %02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx to interface %s\n",
+      E->address.MAC[0],
+      E->address.MAC[1],
+      E->address.MAC[2],
+      E->address.MAC[3],
+      E->address.MAC[4],
+      E->address.MAC[5],
+      E->IFD->name);
+
+    InsertBTEntry (Table, E);
+    PrintBT (Table);
+
+  } else if (E->IFD != IFD) {
     /* Adresa je znama, ale naucena na inom rozhrani - aktualizujeme. */
     E->IFD = (struct IntDescriptor *) IFD;
   }
-  
+
   E->lastSeen = time (NULL);
 
   return E;
@@ -409,10 +415,10 @@ main (int argc, char *argv[])
   struct BTEntry *table = NULL;
 
   /* Kontrola poctu argumentov pri spusteni programu. */
-  if ((argc > MAXINTERFACES) || (argc == 1)){
-      fprintf (stderr, "Usage: %s IF1 IF2 ... IF%d\n\n", argv[0], MAXINTERFACES);
-      exit (ERROR);
-    }
+  if ((argc-1 > MAXINTERFACES) || (argc-1 < MININTERFACES)){
+    fprintf (stderr, "Usage: %s IF1 IF2 [... IF%d]\n\n", argv[0], MAXINTERFACES);
+    exit (ERROR);
+  }
 
   /* Inicializacia pola s popisovacmi rozhrani. */
   memset (ints, 0, sizeof(ints));
@@ -426,63 +432,63 @@ main (int argc, char *argv[])
    */
 
   for (int i = 1; i < argc; i++){
-	  
-      struct ifreq IFR;
-      struct sockaddr_ll SA;
 
-      // Prekopirujeme meno rozhrania do popisovaca rozhrania
-      strncpy(ints[i - 1].name, argv[i], IFNAMSIZ-1);
+    struct ifreq IFR;
+    struct sockaddr_ll SA;
 
-      // Konvertujeme meno rozhrania na index a ulozime do popisovaca
-      ints[i - 1].intNo = if_nametoindex(argv[i]);
-      if (ints[i - 1].intNo == 0){
-		perror ("if_nametoindex");
-		exit (ERROR);
+    // Prekopirujeme meno rozhrania do popisovaca rozhrania
+    strncpy(ints[i - 1].name, argv[i], IFNAMSIZ-1);
+
+    // Konvertujeme meno rozhrania na index a ulozime do popisovaca
+    ints[i - 1].intNo = if_nametoindex(argv[i]);
+    if (ints[i - 1].intNo == 0){
+		  perror ("if_nametoindex");
+		  exit (ERROR);
 	  }
 
-      // Pre dane rozhranie vyplnime strukturu sockaddr_ll potrebnu pre bind()
-      memset (&SA, 0, sizeof (struct sockaddr_ll));
-      SA.sll_family = AF_PACKET;
-      SA.sll_protocol = htons(ETH_P_ALL);
-      SA.sll_ifindex = ints[i - 1].intNo;
+    // Pre dane rozhranie vyplnime strukturu sockaddr_ll potrebnu pre bind()
+    memset (&SA, 0, sizeof (struct sockaddr_ll));
+    SA.sll_family = AF_PACKET;
+    SA.sll_protocol = htons(ETH_P_ALL);
+    SA.sll_ifindex = ints[i - 1].intNo;
 
-      // Vytvorime socket typu AF_PACKET
-      if ((ints[i - 1].socket = socket (AF_PACKET, SOCK_RAW, htons (ETH_P_ALL))) == -1){
-		perror ("socket");
-		/* TODO: Zavriet predchadzajuce sockety */
-		exit (ERROR);  
-	  }
-	
-      // Zviazeme socket s rozhranim
-      if (bind(ints[i - 1].socket, (struct sockaddr *) &SA, sizeof (struct sockaddr_ll)) == -1){
-		perror ("bind");
-		/* TODO: Zavriet predchadzajuce sockety */
-		exit (ERROR);
+    // Vytvorime socket typu AF_PACKET
+    if ((ints[i - 1].socket = socket (AF_PACKET, SOCK_RAW, htons (ETH_P_ALL))) == -1){
+		  perror ("socket");
+		  /* TODO: Zavriet predchadzajuce sockety */
+		  exit (ERROR);
 	  }
 
-      // Priprava pre promiskuitny rezim => ziskame sucasne priznaky rozhrania
-      memset(&IFR, 0, sizeof (struct ifreq));
-      strncpy (IFR.ifr_name, ints[i - 1].name, IFNAMSIZ - 1);
-      if (ioctl (ints[i - 1].socket, SIOCGIFFLAGS, &IFR) == -1){
-		perror ("ioctl get flags");
-		exit (ERROR);
+    // Zviazeme socket s rozhranim
+    if (bind(ints[i - 1].socket, (struct sockaddr *) &SA, sizeof (struct sockaddr_ll)) == -1){
+		  perror ("bind");
+		  /* TODO: Zavriet predchadzajuce sockety */
+		  exit (ERROR);
 	  }
 
-      // K priznakom pridame priznak IFF_PROMISC
-      IFR.ifr_flags |= IFF_PROMISC;
-
-      // Nastavime nove priznaky rozhrania
-      if (ioctl(ints[i - 1].socket, SIOCSIFFLAGS, &IFR) == -1){
-		perror ("ioctl set flags");
-		exit (ERROR);
+    // Priprava pre promiskuitny rezim => ziskame sucasne priznaky rozhrania
+    memset(&IFR, 0, sizeof (struct ifreq));
+    strncpy (IFR.ifr_name, ints[i - 1].name, IFNAMSIZ - 1);
+    if (ioctl (ints[i - 1].socket, SIOCGIFFLAGS, &IFR) == -1){
+		  perror ("ioctl get flags");
+		  exit (ERROR);
 	  }
-	  
+
+    // K priznakom pridame priznak IFF_PROMISC
+    IFR.ifr_flags |= IFF_PROMISC;
+
+    // Nastavime nove priznaky rozhrania
+    if (ioctl(ints[i - 1].socket, SIOCSIFFLAGS, &IFR) == -1){
+		  perror ("ioctl set flags");
+		  exit (ERROR);
+	  }
+
 	  // Odkladame si maximalne cislo socketu pre neskorsi select()
-      if (ints[i - 1].socket > maxSockNo){
-		  maxSockNo = ints[i - 1].socket;
+    if (ints[i - 1].socket > maxSockNo){
+	   maxSockNo = ints[i - 1].socket;
 	  }
-	  
-    } // KONIEC INICIALIZACIE ROZHRANI
+
+  } // KONIEC INICIALIZACIE ROZHRANI
 
   // Najvyssie cislo socketu zvysime o 1, ako pozaduje select()
   maxSockNo += 1;
@@ -503,59 +509,59 @@ main (int argc, char *argv[])
    * vsak nie vstupnym), alebo vsetkymi ostatnymi.
    *
    */
-   
+
   for (;;){
-      
+
 	  fd_set FDs;
 
-      /* Do mnoziny FDs pridame vsetky sockety. */
-      FD_ZERO (&FDs);
-      for (int i = 0; i < argc - 1; i++){
-		FD_SET(ints[i].socket, &FDs);
+    /* Do mnoziny FDs pridame vsetky sockety. */
+    FD_ZERO (&FDs);
+    for (int i = 0; i < argc - 1; i++){
+		  FD_SET(ints[i].socket, &FDs);
 	  }
 
-      /* Nad tymito socketmi cakame na udalost prijatia ramca. */
-      select (maxSockNo, &FDs, NULL, NULL, NULL);
+    /* Nad tymito socketmi cakame na udalost prijatia ramca. */
+    select (maxSockNo, &FDs, NULL, NULL, NULL);
 
-      /* Ak udalost nastala, zistime, na ktorom sockete... */
-      for (int i = 0; i < argc - 1; i++){
-		if (FD_ISSET (ints[i].socket, &FDs)){
-			/* ... a ideme ju obsluzit. */
-			struct EthFrame frame;
-			int frameLength;
-			struct BTEntry *E;
+    /* Ak udalost nastala, zistime, na ktorom sockete... */
+    for (int i = 0; i < argc - 1; i++){
+  		if (FD_ISSET (ints[i].socket, &FDs)){
+  			/* ... a ideme ju obsluzit. */
+  			struct EthFrame frame;
+  			int frameLength;
+  			struct BTEntry *E;
 
-			/* Nacitame ramec, maximalne do dlzky MTU. */
-			frameLength = read(ints[i].socket, &frame, sizeof (struct EthFrame));
+  			/* Nacitame ramec, maximalne do dlzky MTU. */
+  			frameLength = read(ints[i].socket, &frame, sizeof (struct EthFrame));
 
-			/* Obsluzime zdrojovu adresu.  Bud ju uz pozname, a v takom
-			pripade musime aktualizovat udaj o case, kedy sme ju
-			naposledy pouzili (prave teraz), pripadne aj vstupny
-			interfejs, alebo ju nepozname, a v takom pripade ju musime
-			pridat.  */
-			
-			E = UpdateOrAddMACEntry (table, &(frame.src), &(ints[i]));
+  			/* Obsluzime zdrojovu adresu.  Bud ju uz pozname, a v takom
+  			pripade musime aktualizovat udaj o case, kedy sme ju
+  			naposledy pouzili (prave teraz), pripadne aj vstupny
+  			interfejs, alebo ju nepozname, a v takom pripade ju musime
+  			pridat.  */
 
-			/* Obsluzime cielovu adresu.  Ak ju nepozname, ramec rozosleme
-			vsetkymi ostatnymi rozhraniami okrem vstupneho.  Ak ju
-			pozname, ramec odosleme len danym rozhranim, ak je rozne od
-			vstupneho.  */
-	    
-			if ((E = FindBTEntry (table, &(frame.dest))) == NULL){
-				for (int j = 0; j < argc - 1; j++){
-					if (i != j){
-						write (ints[j].socket, &frame, frameLength);
-					}
-				}
-			} else if (E->IFD != &(ints[i])){
-				write (E->IFD->socket, &frame, frameLength);
-			}
-		}
+  			E = UpdateOrAddMACEntry (table, &(frame.src), &(ints[i]));
+
+  			/* Obsluzime cielovu adresu.  Ak ju nepozname, ramec rozosleme
+  			vsetkymi ostatnymi rozhraniami okrem vstupneho.  Ak ju
+  			pozname, ramec odosleme len danym rozhranim, ak je rozne od
+  			vstupneho.  */
+
+  			if ((E = FindBTEntry (table, &(frame.dest))) == NULL){
+  				for (int j = 0; j < argc - 1; j++){
+  					if (i != j){
+  						write (ints[j].socket, &frame, frameLength);
+  					}
+  				}
+  			} else if (E->IFD != &(ints[i])){
+  				write (E->IFD->socket, &frame, frameLength);
+  			}
+		  }
     }
   } // NEKONECNA SLUCKA => OBSLUHA
 
   // TODO: upratat
-  
+
   return SUCCESS;
 }
 
