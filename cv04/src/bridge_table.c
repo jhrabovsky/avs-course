@@ -1,15 +1,9 @@
-
 #include "bridge_table.h"
 
-/*
- * Funkcia pre vytvorenie noveho riadku tabulky.  Riadok nebude zaradeny do
- * tabulky, bude mat len inicializovane vnutorne hodnoty.
- *
- */
+/* Funkcia pre vytvorenie noveho riadku tabulky.  Riadok nebude zaradeny do
+   tabulky, bude mat len inicializovane vnutorne hodnoty. */
 
-struct BTEntry *
-CreateBTEntry (void)
-{
+struct BTEntry * CreateBTEntry (void){
 	struct BTEntry *E = (struct BTEntry *) malloc (sizeof (struct BTEntry));
 	if (E != NULL)
 	{
@@ -21,14 +15,10 @@ CreateBTEntry (void)
 	return E;
 }
 
-/*
- * Funkcia pre vlozenie vytvoreneho riadku do tabulky na jej zaciatok.
- *
- */
+/* Funkcia pre vlozenie vytvoreneho riadku do tabulky na jej zaciatok. */
 
 struct BTEntry *
-InsertBTEntry (struct BTEntry *Head, struct BTEntry *Entry)
-{
+InsertBTEntry (struct BTEntry *Head, struct BTEntry *Entry){
 	if (Head == NULL)
 		return NULL;
 
@@ -39,17 +29,17 @@ InsertBTEntry (struct BTEntry *Head, struct BTEntry *Entry)
 	Entry->previous = Head;
 	Head->next = Entry;
 
+    if (Entry->next != NULL){
+        (Entry->next)->previous = Entry;
+    }
+
 	return Entry;
 }
 
-/*
- * Funkcia pre vlozenie vytvoreneho riadku do tabulky na jej koniec.
- *
- */
+/* Funkcia pre vlozenie vytvoreneho riadku do tabulky na jej koniec. */
 
 struct BTEntry *
-AppendBTEntry (struct BTEntry *Head, struct BTEntry *Entry)
-{
+AppendBTEntry (struct BTEntry *Head, struct BTEntry *Entry){
 	struct BTEntry *I;
 
 	if (Head == NULL)
@@ -68,14 +58,10 @@ AppendBTEntry (struct BTEntry *Head, struct BTEntry *Entry)
 	return Entry;
 }
 
-/*
- * Funkcia hladajuca riadok tabulky podla zadanej MAC adresy.
- *
- */
+/* Funkcia hladajuca riadok tabulky podla zadanej MAC adresy. */
 
 struct BTEntry *
-FindBTEntryByMAC (struct BTEntry *Head, const struct MACAddress *Address)
-{
+FindBTEntryByMAC (struct BTEntry *Head, const struct MACAddress *Address){
 	struct BTEntry *I;
 
 	if (Head == NULL)
@@ -96,15 +82,11 @@ FindBTEntryByMAC (struct BTEntry *Head, const struct MACAddress *Address)
 	return NULL;
 }
 
-/*
- * Funkcia, ktora z tabulky vysunie riadok, ak nanho uz mame smernik.
- * Riadok nebude dealokovany z pamate, bude len vynaty z tabulky.
- *
- */
+/* Funkcia, ktora z tabulky vysunie riadok, ak nanho uz mame smernik.
+   Riadok nebude dealokovany z pamate, bude len vynaty z tabulky. */
 
 struct BTEntry *
-EjectBTEntryByItem (struct BTEntry *Head, struct BTEntry *Item)
-{
+EjectBTEntryByItem (struct BTEntry *Head, struct BTEntry *Item){
 	if (Head == NULL)
 		return NULL;
 
@@ -120,15 +102,11 @@ EjectBTEntryByItem (struct BTEntry *Head, struct BTEntry *Item)
 	return Item;
 }
 
-/*
- * Funkcia, ktora z tabulky vysunie riadok so zadanou MAC adresou.
- * Riadok nebude dealokovany z pamate, bude len vynaty z tabulky.
- *
- */
+/* Funkcia, ktora z tabulky vysunie riadok so zadanou MAC adresou.
+   Riadok nebude dealokovany z pamate, bude len vynaty z tabulky. */
 
 struct BTEntry *
-EjectBTEntryByMAC (struct BTEntry *Head, const struct MACAddress *Address)
-{
+EjectBTEntryByMAC (struct BTEntry *Head, const struct MACAddress *Address){
 	struct BTEntry *E;
 
 	if (Head == NULL)
@@ -147,15 +125,10 @@ EjectBTEntryByMAC (struct BTEntry *Head, const struct MACAddress *Address)
 }
 
 
-/*
- * Funkcia na vynatie a uplne zrusenie riadku tabulky i z pamate.  Vyhladava
- * sa podla MAC adresy.
- *
- */
+/* Funkcia na vynatie a uplne zrusenie riadku tabulky i z pamate. Vyhladava
+   sa podla MAC adresy. */
 
-void
-DestroyBTEntryByMAC (struct BTEntry *Head, const struct MACAddress *Address)
-{
+void DestroyBTEntryByMAC (struct BTEntry *Head, const struct MACAddress *Address){
 	struct BTEntry *E;
 
 	if (Head == NULL)
@@ -171,14 +144,9 @@ DestroyBTEntryByMAC (struct BTEntry *Head, const struct MACAddress *Address)
 	return;
 }
 
-/*
- * Funkcia na vypis obsahu prepinacej tabulky.
- *
- */
+/* Funkcia na vypis obsahu prepinacej tabulky. */
 
-void
-PrintBT (const struct BTEntry *Head)
-{
+void PrintBT (const struct BTEntry *Head){
 
 #define TLLEN (2+IFNAMSIZ+3+17+2+1)
 
@@ -213,8 +181,7 @@ PrintBT (const struct BTEntry *Head)
 		return;
 
 	I = Head->next;
-	while (I != NULL)
-	{
+	while (I != NULL){
 		memset (TableLine, ' ', TLLEN - 2);
 		TableLine[0] = '|';
 
@@ -243,15 +210,10 @@ PrintBT (const struct BTEntry *Head)
 	return;
 }
 
-/*
- * Funkcia uplne zrusi a dealokuje z pamate celu prepinaciu tabulku, necha
- * iba pociatocny zaznam.
- *
- */
+/* Funkcia uplne zrusi a dealokuje z pamate celu prepinaciu tabulku, necha
+   iba pociatocny zaznam. */
 
-struct BTEntry *
-FlushBT (struct BTEntry *Head)
-{
+struct BTEntry * FlushBT (struct BTEntry *Head){
 	struct BTEntry *I;
 
 	if (Head == NULL)
@@ -274,27 +236,23 @@ FlushBT (struct BTEntry *Head)
 	return Head;
 }
 
-/*
- * Funkcia realizujuca obsluhu zdrojovej adresy v prepinacej tabulke.  Ak
- * adresa v tabulke neexistuje, funkcia pre nu vytvori a do tabulky vlozi
- * novy zaznam.  Ak adresa v tabulke existuje, funkcia podla potreby
- * aktualizuje zaznam o vstupnom rozhrani, a v kazdom pripade aktualizuje
- * cas, kedy sme naposledy tuto zdrojovu adresu videli.
- *
- */
+/* Funkcia realizujuca obsluhu zdrojovej adresy v prepinacej tabulke. Ak
+   adresa v tabulke neexistuje, funkcia pre nu vytvori a do tabulky vlozi
+   novy zaznam.  Ak adresa v tabulke existuje, funkcia podla potreby
+   aktualizuje zaznam o vstupnom rozhrani, a v kazdom pripade aktualizuje
+   cas, kedy sme naposledy tuto zdrojovu adresu videli. */
 
 struct BTEntry *
 UpdateOrAddMACEntry (struct BTEntry *Table, const struct MACAddress *Address,
-		const struct IntDescriptor *IFD)
-{
+		const struct IntDescriptor *IFD){
+
 	struct BTEntry *E;
 
 	if (Table == NULL)
 		return NULL;
 
 	/* Vyhladame zdrojovu adresu v tabulke. */
-	if ((E = FindBTEntryByMAC (Table, Address)) == NULL)
-	{
+	if ((E = FindBTEntryByMAC (Table, Address)) == NULL){
 		/* Adresa je neznama. Zalozime pre nu novy zaznam. */
 		E = CreateBTEntry ();
 		if (E == NULL)
@@ -307,19 +265,18 @@ UpdateOrAddMACEntry (struct BTEntry *Table, const struct MACAddress *Address,
 		E->address = *Address;
 		E->IFD = (struct IntDescriptor *) IFD;
 
-		printf ("Adding address %x:%x:%x:%x:%x:%x to interface %s\n",
-				E->address.MAC[0],
-				E->address.MAC[1],
-				E->address.MAC[2],
-				E->address.MAC[3],
-				E->address.MAC[4],
-				E->address.MAC[5],
-				E->IFD->name);
+		printf ("Adding address %02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx to interface %s\n",
+			E->address.MAC[0],
+			E->address.MAC[1],
+			E->address.MAC[2],
+			E->address.MAC[3],
+			E->address.MAC[4],
+			E->address.MAC[5],
+			E->IFD->name);
 
 		InsertBTEntry (Table, E);
 		PrintBT (Table);
-	}
-	else if (E->IFD != IFD)
+	}	else if (E->IFD != IFD)
 		/* Adresa je znama, ale naucena na inom rozhrani - aktualizujeme. */
 		E->IFD = (struct IntDescriptor *) IFD;
 

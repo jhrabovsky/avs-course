@@ -1,19 +1,14 @@
-
 #ifndef LINKED_LIST_H
 #define LINKED_LIST_H
 
 #include "basic_libs.h"
 
-/*
- * Struct BTEntry je prvok zretazeneho zoznamu, ktory reprezentuje riadok
- * prepinacej tabulky.  V riadku je okrem smernikov na dalsi a predosly
- * prvok ulozena MAC adresa a smernik na rozhranie, kde je pripojeny klient,
- * ako aj cas, kedy sme videli tohto odosielatela naposledy.
- *
- */
+/* Struct BTEntry je prvok zretazeneho zoznamu, ktory reprezentuje riadok
+   prepinacej tabulky.  V riadku je okrem smernikov na dalsi a predosly
+   prvok ulozena MAC adresa a smernik na rozhranie, kde je pripojeny klient,
+   ako aj cas, kedy sme videli tohto odosielatela naposledy. */
 
-struct BTEntry
-{
+struct BTEntry {
 	struct BTEntry *next;
 	struct BTEntry *previous;
 	struct MACAddress address;

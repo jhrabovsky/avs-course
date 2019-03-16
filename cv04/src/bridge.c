@@ -1,4 +1,3 @@
-
 #include <pthread.h>
 #include <sys/select.h>
 #include <sys/ioctl.h>
@@ -6,30 +5,25 @@
 #include "basic_libs.h"
 #include "bridge_table.h"
 
-#define		MAXINTERFACES	(8)
-#define		MACMAXAGE	(300)
+#define		MAXINTERFACES (8)
+#define     MININTERFACES (2)
+#define		MACMAXAGE (300)
 
 
-/*
- * Globalne premenne - prepinacia tabulka, pole popisovacov rozhrani,
- * read/write zamok pre pracu nad tabulkou a pocet obsluhovanych rozhrani.
- *
- */
+/* Globalne premenne - prepinacia tabulka, pole popisovacov rozhrani,
+   read/write zamok pre pracu nad tabulkou a pocet obsluhovanych rozhrani. */
 
 struct BTEntry *table = NULL;
 struct IntDescriptor ints[MAXINTERFACES];
 pthread_rwlock_t tableLock = PTHREAD_RWLOCK_INITIALIZER;
 int intCount;
 
-/*
- * Telo vlakna, ktore sa kazdu sekundu zobudi, prebehne prepinaciu
- * tabulku a odstrani polozky, ktore su starsie ako MACMAXAGE sekund.
- *
- */
+/* Telo vlakna, ktore sa kazdu sekundu zobudi, prebehne prepinaciu
+   tabulku a odstrani polozky, ktore su starsie ako MACMAXAGE sekund. */
 
-void *
-DeleteUnusedMACThread (void *Arg){
-	time_t currentTime;
+void * DeleteUnusedMACThread (void *Arg){
+
+  time_t currentTime;
 	struct timeval timeOut;
 
 	for (;;){
@@ -41,7 +35,6 @@ DeleteUnusedMACThread (void *Arg){
 			/* TODO: Upratat. */
 			exit (EXIT_ERROR);
 		}
-
 
 		currentTime = time (NULL);
 
@@ -67,7 +60,6 @@ DeleteUnusedMACThread (void *Arg){
 			exit (EXIT_ERROR);
 		}
 
-
 		timeOut.tv_sec = 1;
 		timeOut.tv_usec = 0;
 		select (0, NULL, NULL, NULL, &timeOut);
@@ -76,14 +68,11 @@ DeleteUnusedMACThread (void *Arg){
 	return NULL;
 }
 
-/*
- * Telo vlakna, ktore sa stara o ucenie sa alebo obnovovanie zdrojovych MAC.
- *
- */
+/* Telo vlakna, ktore sa stara o ucenie sa alebo obnovovanie zdrojovych MAC. */
 
-void *
-AddRefreshMACThread (void *Arg){
-	fd_set fds;
+void * AddRefreshMACThread (void *Arg){
+
+  fd_set fds;
 	int maxSockNo = 0;
 
 	for (int i = 0; i < intCount; i++){
@@ -102,13 +91,12 @@ AddRefreshMACThread (void *Arg){
 		select (maxSockNo, &fds, NULL, NULL, NULL);
 
 		for (int i = 0; i < intCount; i++){
-			if (FD_ISSET (ints[i].sockpair[1], &fds))
-			{
+			if (FD_ISSET (ints[i].sockpair[1], &fds)){
 				struct MACAddress address;
 
 				memset (&address, 0, sizeof (struct MACAddress));
 				read (ints[i].sockpair[1], &address,
-						sizeof (struct MACAddress));
+					    sizeof (struct MACAddress));
 
 				if (pthread_rwlock_wrlock (&tableLock) != 0){
 					fprintf (stderr,
@@ -132,13 +120,9 @@ AddRefreshMACThread (void *Arg){
 	return NULL;
 }
 
-/*
- * Telo vlakna, ktore sa stara o prepinanie ramcov podla prepinacej tabulky.
- *
- */
+/* Telo vlakna, ktore sa stara o prepinanie ramcov podla prepinacej tabulky. */
 
-void *
-FrameReaderThread (void *Arg){
+void * FrameReaderThread (void *Arg){
 
 	struct EthFrame frame;
 	int frameLength;
@@ -148,39 +132,34 @@ FrameReaderThread (void *Arg){
 	for (;;){
 
 		/* Nacitame ramec, maximalne do dlzky MTU. */
-		frameLength =
-				read (ifd->socket, &frame,
-						sizeof (struct EthFrame));
+		frameLength = read (ifd->socket, &frame,
+				sizeof (struct EthFrame));
 
 		/* Oznamime pridavaciemu/obnovovaciemu vlaknu zdrojovu
-         MAC adresu. */
+       MAC adresu. */
 		send (ifd->sockpair[0],
 				&(frame.src), sizeof (frame.src), MSG_DONTWAIT);
 
 		/* Obsluzime cielovu adresu.  Ak ju nepozname, ramec rozosleme
-         vsetkymi ostatnymi rozhraniami okrem vstupneho.  Ak ju
-         pozname, ramec odosleme len danym rozhranim, ak je rozne od
-         vstupneho.  */
+       vsetkymi ostatnymi rozhraniami okrem vstupneho.  Ak ju
+       pozname, ramec odosleme len danym rozhranim, ak je rozne od
+       vstupneho. */
 
-		if (pthread_rwlock_rdlock (&tableLock) != 0)
-		{
+		if (pthread_rwlock_rdlock (&tableLock) != 0){
 			fprintf (stderr,
 					"Cannot lock bridging table for reading. Exiting.\n");
 			/* TODO: Upratat. */
 			exit (EXIT_ERROR);
 		}
 
-		if ((E = FindBTEntryByMAC(table, &(frame.dest))) == NULL)
-		{
+		if ((E = FindBTEntryByMAC(table, &(frame.dest))) == NULL){
 			for (int j = 0; j < intCount; j++)
 				if (ifd != &(ints[j]))
 					write (ints[j].socket, &frame, frameLength);
-		}
-		else if (E->IFD != ifd)
+		}	else if (E->IFD != ifd)
 			write (E->IFD->socket, &frame, frameLength);
 
-		if (pthread_rwlock_unlock (&tableLock) != 0)
-		{
+		if (pthread_rwlock_unlock (&tableLock) != 0){
 			fprintf (stderr,
 					"Cannot unlock bridging table after reading. Exiting.\n");
 			/* TODO: Upratat. */
@@ -190,7 +169,6 @@ FrameReaderThread (void *Arg){
 	}
 
 	return NULL;
-
 }
 
 void initInterface(int index, const char * iface){
@@ -203,14 +181,13 @@ void initInterface(int index, const char * iface){
 
 	/* Konvertujeme meno rozhrania na index a ulozime do popisovaca. */
 	ints[index].intNo = if_nametoindex (iface);
-	if (ints[index].intNo == 0)
-	{
+	if (ints[index].intNo == 0){
 		perror ("if_nametoindex()");
 		exit (EXIT_ERROR);
 	}
 
 	/* Pre dane rozhranie vyplnime strukturu sockaddr_ll potrebnu
-         pre bind() */
+     pre bind() */
 	memset (&addr, 0, sizeof (struct sockaddr_ll));
 	addr.sll_family = AF_PACKET;
 	addr.sll_protocol = htons (ETH_P_ALL);
@@ -218,29 +195,25 @@ void initInterface(int index, const char * iface){
 
 	/* Vytvorime socket typu AF_PACKET. */
 	ints[index].socket = socket (AF_PACKET, SOCK_RAW, htons (ETH_P_ALL));
-	if (ints[index].socket == -1)
-	{
+	if (ints[index].socket == -1){
 		perror ("socket()");
 		/* TODO: Zavriet predchadzajuce sockety */
 		exit (EXIT_ERROR);
 	}
 
 	/* Zviazeme socket s rozhranim. */
-	if (bind
-			(ints[index].socket, (struct sockaddr *) &addr,
-					sizeof (struct sockaddr_ll)) == -1)
-	{
+	if (bind(ints[index].socket, (struct sockaddr *) &addr,
+		  sizeof (struct sockaddr_ll)) == -1){
 		perror ("bind()");
 		/* TODO: Zavriet predchadzajuce sockety */
 		exit (EXIT_ERROR);
 	}
 
 	/* Priprava pre promiskuitny rezim.  Najprv ziskame sucasne priznaky
-         rozhrania. */
+     rozhrania. */
 	memset (&ifr, 0, sizeof (struct ifreq));
 	strncpy (ifr.ifr_name, iface, sizeof(ifr.ifr_name));
-	if (ioctl (ints[index].socket, SIOCGIFFLAGS, &ifr) == -1)
-	{
+	if (ioctl (ints[index].socket, SIOCGIFFLAGS, &ifr) == -1){
 		perror ("ioctl() - get flags");
 		exit (EXIT_ERROR);
 	}
@@ -249,14 +222,12 @@ void initInterface(int index, const char * iface){
 	ifr.ifr_flags |= IFF_PROMISC;
 
 	/* Nastavime nove priznaky rozhrania. */
-	if (ioctl (ints[index].socket, SIOCSIFFLAGS, &ifr) == -1)
-	{
+	if (ioctl (ints[index].socket, SIOCSIFFLAGS, &ifr) == -1){
 		perror ("ioctl() - set flags");
 		exit (EXIT_ERROR);
 	}
 
-	if (socketpair (AF_UNIX, SOCK_DGRAM, 0, ints[index].sockpair) == -1)
-	{
+	if (socketpair (AF_UNIX, SOCK_DGRAM, 0, ints[index].sockpair) == -1){
 		perror ("socketpair()");
 		/* TODO: Upratat. */
 		exit (EXIT_ERROR);
@@ -264,31 +235,26 @@ void initInterface(int index, const char * iface){
 }
 
 
-int
-main (int argc, char *argv[]){
+int main (int argc, char *argv[]){
 
 	pthread_t threadID;
+    intCount = argc - 1;
 
 	/* Kontrola poctu argumentov pri spusteni programu. */
-	if ((argc > MAXINTERFACES) || (argc == 1)){
-		fprintf (stderr, "Usage: %s IF1 IF2 ... IF%d\n\n",
-				argv[0], MAXINTERFACES);
+	if ((intCount > MAXINTERFACES) || (intCount < MININTERFACES)){
+		fprintf (stderr, "Usage: %s IF1 IF2 [... IF%d]\n\n",
+			argv[0], MAXINTERFACES);
 
 		exit (EXIT_ERROR);
 	}
 
-	intCount = argc - 1;
-
 	/* Inicializacia pola s popisovacmi rozhrani. */
 	memset (ints, 0, sizeof (ints));
 
-	/*
-	 * V cykle sa postupne pre kazde rozhranie vybavia tri klucove
-	 * zalezitosti: otvorime socket typu AF_PACKET pre vsetky ramce, zviazeme
-	 * ho s prislusnym rozhranim a rozhranie presunieme do promiskuitneho
-	 * rezimu.
-	 *
-	 */
+	/* V cykle sa postupne pre kazde rozhranie vybavia tri klucove
+	   zalezitosti: otvorime socket typu AF_PACKET pre vsetky ramce, zviazeme
+	   ho s prislusnym rozhranim a rozhranie presunieme do promiskuitneho
+	   rezimu. */
 
 	for (int i = 1; i < argc; i++){
 		initInterface(i-1, argv[i]);

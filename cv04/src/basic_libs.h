@@ -1,4 +1,3 @@
-
 #ifndef BASIC_LIBS_H
 #define BASIC_LIBS_H
 
@@ -20,41 +19,29 @@
 #define		MACSIZE		(6)
 #define		MTU (1500)
 
-/*
- * Struktura IntDescriptor uchovava informacie o sietovom rozhrani, ktore
- * nas bridge obsluhuje - meno rozhrania, jeho cislo v Linuxe, a socket,
- * ktorym na tomto rozhrani citame a odosielame ramce.
- *
- */
+/* Struktura IntDescriptor uchovava informacie o sietovom rozhrani, ktore
+   nas bridge obsluhuje - meno rozhrania, jeho cislo v Linuxe, a socket,
+   ktorym na tomto rozhrani citame a odosielame ramce. */
 
-struct IntDescriptor
-{
+struct IntDescriptor {
 	char name[IFNAMSIZ];
 	unsigned int intNo;
 	int socket;
 	int sockpair[2]; // socketpair pre komunikaciu Reader<->Writer;
 };
 
-/*
- * Struktura MACAddress obaluje 6-bajtove pole pre uchovavanie MAC adresy.
- * Obalenie do struktury je vyhodne pri kopirovani (priradovani) MAC adresy
- * medzi premennymi rovnakeho typu.
- *
- */
+/* Struktura MACAddress obaluje 6-bajtove pole pre uchovavanie MAC adresy.
+   Obalenie do struktury je vyhodne pri kopirovani (priradovani) MAC adresy
+   medzi premennymi rovnakeho typu. */
 
-struct MACAddress
-{
+struct MACAddress {
 	unsigned char MAC[MACSIZE];
 } __attribute__ ((packed));
 
-/*
- * Struct EthFrame reprezentuje zakladny ramec podla IEEE 802.3 s maximalnou
- * velkostou tela.
- *
- */
+/* Struct EthFrame reprezentuje zakladny ramec podla IEEE 802.3 s maximalnou
+   velkostou tela. */
 
-struct EthFrame
-{
+struct EthFrame {
 	struct MACAddress dest;
 	struct MACAddress src;
 	unsigned short type;
